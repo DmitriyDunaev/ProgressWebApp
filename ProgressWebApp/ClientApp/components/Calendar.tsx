@@ -4,38 +4,53 @@ import BigCalendar from 'react-big-calendar';
 import * as moment from 'moment';
 import "react-big-calendar/lib/css/react-big-calendar.css"
 
+
+enum EventStates { "new", "registered", "other" };
+
+// TYPES
+
+//Essentialy the same data structure as in the calendar, but in a form of a class
+//would be better to mpve to a separate file
+class BaisicEvent {
+    allDay: boolean;
+    start: Date;
+    end: Date;
+    title: string;
+
+    constructor(allDay: boolean, start: Date, end: Date, title: string, ) {
+        this.allDay = allDay;
+        this.start = start;
+        this.end = end;
+        this.title = title;
+    }
+}
+
+//Basic Event + additional data sucha as price and room (data not used by the Calendar)
+//would be better to mpve to a separate file
+class ComplexEvent extends BaisicEvent {
+    state: EventStates;
+    messege: string | undefined;
+
+    constructor(allDay: boolean, start: Date, end: Date, title: string, state: EventStates, messege: string | undefined) {
+        super(allDay, start, end, title);
+        this.state = state;
+        this.messege = messege;
+    }
+
+    getBaisicEvent(): BaisicEvent {
+        return new BaisicEvent(this.allDay, this.start, this.end, this.title);
+    }
+}
+
 // TEMPERAL
 //Initial events, Fetcher should be written in the constructor  (will be removed)
 const eventsFromSomewhere = [
-    {
-        allDay: false,
-        end: new Date('2018-05-23 11:13:00'),
-        start: new Date('2018-05-23 10:13:00'),
-        title: 'hi',
-    },
-    {
-        allDay: true,
-        end: new Date('2018-05-25 11:13:00'),
-        start: new Date('2018-05-25 11:13:00'),
-        title: 'All Day Event',
-    },
+    new ComplexEvent(false, new Date('2018-05-23 11:13:00'), new Date('2018-05-23 10:13:00'), "Simple Event", EventStates.other, "sowething 1"),
+    new ComplexEvent(true, new Date('2018-05-25 11:13:00'), new Date('2018-05-25 11:13:00'), "All Day Event", EventStates.other, "sowething 2")
 ];
 
 //event instance (will be removed)
-const additionalEvent = {
-    allDay: false,
-    end: new Date('2018-05-24 11:13:30'),
-    start: new Date('2018-05-24 11:13:00'),
-    title: 'Added event',
-};
-// TYPES
-
-interface Event {
-    allDay: boolean,
-    start:  Date,
-    end:  Date,
-    title: string,
-}
+const additionalEvent = new ComplexEvent(false, new Date('2018-05-24 11:13:30'), new Date('2018-05-24 11:13:00'), 'Added Event', EventStates.new, "sowething 3");
 
 
 interface SelectionRange {
@@ -47,12 +62,7 @@ interface SelectionRange {
 
 //this is what is how we declare state varibles (dynamic attributes)
 interface CalendarState {
-    events: {
-        allDay: boolean,
-        end: Date,
-        start: Date,
-        title: string,
-    }[]
+    events: ComplexEvent[]
 }
 
 //***** ***** ***** USING THIS IS RIGHT BUT REQUIRES CHANGES IN HOME.TSX ***** ***** *****
@@ -73,7 +83,7 @@ export class Calendar extends React.Component<RouteComponentProps<{}>, CalendarS
 
     //**** Proof of Concept ****
     //Simple example of adding an event 
-    AddEvent(event: Event) {
+    AddEvent(event: ComplexEvent) {
         this.state.events.push(event);
         this.forceUpdate();
     }
@@ -83,12 +93,12 @@ export class Calendar extends React.Component<RouteComponentProps<{}>, CalendarS
     RemoveEvents() {
         this.setState({
             events: this.state.events.filter(function (e) {
-                return e.title !== 'Added event'
+                return e.title !== 'Added Event'
             })
         });
     }
 
-    //Branches emptiness selection handeling by action
+    //Branches emptiness-selection handeling by action type
     SelectionHandler(slotInfo: SelectionRange) {
         switch (slotInfo.action) {
             case "select":
@@ -112,7 +122,7 @@ export class Calendar extends React.Component<RouteComponentProps<{}>, CalendarS
             selection.start.getFullYear() == selection.end.getFullYear() &&
             selection.slots.length >= properties.minEventDuration &&
             selection.slots.length <= properties.maxEventDuration) {
-            this.AddEvent({ allDay: false, start: selection.start, end: selection.end, title: "Drawn Event" });
+            this.AddEvent(new ComplexEvent(false, selection.start, selection.end, "Drawn Event", EventStates.new, ""));
         }
     }
 
@@ -146,7 +156,7 @@ export class Calendar extends React.Component<RouteComponentProps<{}>, CalendarS
                         this.SelectionHandler({
                             start: new Date(e.start.toString()),  //Needs to be fixed!!!!
                             end: new Date(e.end.toString()),      //Needs to be fixed!!!!
-                            slots: e.slots,
+                            slots: e.slots,// 
                             action: e.action
                         })
                     }} // Meant to be used for "drawing" events.
@@ -155,7 +165,5 @@ export class Calendar extends React.Component<RouteComponentProps<{}>, CalendarS
                 />
             </div>
         </div>
-
     }
-
 }
