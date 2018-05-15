@@ -11,7 +11,7 @@ enum EventStates { "new", "registered", "other" };
 
 //Essentialy the same data structure as in the calendar, but in a form of a class
 //would be better to mpve to a separate file
-class BaisicEvent {
+class BasicEvent {
     allDay: boolean;
     start: Date;
     end: Date;
@@ -27,22 +27,22 @@ class BaisicEvent {
 
 //Basic Event + additional data sucha as price and room (data not used by the Calendar)
 //would be better to mpve to a separate file
-class ComplexEvent extends BaisicEvent {
+class ComplexEvent extends BasicEvent {
     state: EventStates;
-    messege: string | undefined;
+    message: string | undefined; 
 
-    constructor(allDay: boolean, start: Date, end: Date, title: string, state: EventStates, messege: string | undefined) {
+    constructor(allDay: boolean, start: Date, end: Date, title: string, state: EventStates, message: string | undefined) {
         super(allDay, start, end, title);
         this.state = state;
-        this.messege = messege;
+        this.message = message;
     }
 
-    getBaisicEvent(): BaisicEvent {
-        return new BaisicEvent(this.allDay, this.start, this.end, this.title);
+    getBaisicEvent(): BasicEvent {
+        return new BasicEvent(this.allDay, this.start, this.end, this.title);
     }
 }
 
-// TEMPERAL
+// TEMPORAL
 //Initial events, Fetcher should be written in the constructor  (will be removed)
 const eventsFromSomewhere = [
     new ComplexEvent(false, new Date('2018-05-23 11:13:00'), new Date('2018-05-23 10:13:00'), "Simple Event", EventStates.other, "sowething 1"),
@@ -107,7 +107,7 @@ export class Calendar extends React.Component<RouteComponentProps<{}>, CalendarS
             case "click":
                 this.StartSelection();
                 break;
-            case "select":
+            case "doubleClick":
                 this.DoubleClickEmptinessHandler();
         }
     }
