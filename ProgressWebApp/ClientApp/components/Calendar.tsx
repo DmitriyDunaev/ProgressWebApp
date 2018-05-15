@@ -2,45 +2,9 @@
 import { RouteComponentProps } from 'react-router';
 import BigCalendar from 'react-big-calendar';
 import * as moment from 'moment';
-import "react-big-calendar/lib/css/react-big-calendar.css"
+import "react-big-calendar/lib/css/react-big-calendar.css";
+import { EventStates, ComplexEvent } from "./DataController";
 
-
-enum EventStates { "new", "registered", "other" };
-
-// TYPES
-
-//Essentialy the same data structure as in the calendar, but in a form of a class
-//would be better to mpve to a separate file
-class BasicEvent {
-    allDay: boolean;
-    start: Date;
-    end: Date;
-    title: string;
-
-    constructor(allDay: boolean, start: Date, end: Date, title: string, ) {
-        this.allDay = allDay;
-        this.start = start;
-        this.end = end;
-        this.title = title;
-    }
-}
-
-//Basic Event + additional data sucha as price and room (data not used by the Calendar)
-//would be better to mpve to a separate file
-class ComplexEvent extends BasicEvent {
-    state: EventStates;
-    message: string | undefined; 
-
-    constructor(allDay: boolean, start: Date, end: Date, title: string, state: EventStates, message: string | undefined) {
-        super(allDay, start, end, title);
-        this.state = state;
-        this.message = message;
-    }
-
-    getBaisicEvent(): BasicEvent {
-        return new BasicEvent(this.allDay, this.start, this.end, this.title);
-    }
-}
 
 // TEMPORAL
 //Initial events, Fetcher should be written in the constructor  (will be removed)
@@ -50,7 +14,7 @@ const eventsFromSomewhere = [
 ];
 
 //event instance (will be removed)
-const additionalEvent = new ComplexEvent(false, new Date('2018-05-24 11:13:30'), new Date('2018-05-24 11:13:00'), 'Added Event', EventStates.new, "sowething 3");
+const additionalEvent = new ComplexEvent(false, new Date('2018-05-24 11:13:30'), new Date('2018-05-24 11:13:00'), 'Added Event', EventStates.other, "sowething 3");
 
 
 interface SelectionRange {
@@ -68,12 +32,14 @@ interface CalendarState {
 //***** ***** ***** USING THIS IS RIGHT BUT REQUIRES CHANGES IN HOME.TSX ***** ***** *****
 
 //this is what is how we declare prop varibles (readoly attributes)
-//interface CalendarProps extends RouteComponentProps<{}> {
-//    step: number, // length of a time step (mins)
-//    timeslot: number, // interval between displayed values mesured in steps
-//    minEventDuration: number, //mesured in steps 
-//    maxEventDuration: number, //mesured in steps 
-//}
+/*
+interface CalendarProps extends RouteComponentProps<{}> {
+    step: number, // length of a time step (mins)
+    timeslot: number, // interval between displayed values mesured in steps
+    minEventDuration: number, //mesured in steps 
+    maxEventDuration: number, //mesured in steps 
+}
+*/
 
 //***** ***** ***** *****  *****  *****  КАСТЫЛЬ :P *****  *****  ***** ***** ***** *****
 const properties = { step: 15, timeslot: 2, minEventDuration: 4, maxEventDuration: 9 };
@@ -122,7 +88,7 @@ export class Calendar extends React.Component<RouteComponentProps<{}>, CalendarS
             selection.start.getFullYear() == selection.end.getFullYear() &&
             selection.slots.length >= properties.minEventDuration &&
             selection.slots.length <= properties.maxEventDuration) {
-            this.AddEvent(new ComplexEvent(false, selection.start, selection.end, "Drawn Event", EventStates.new, ""));
+            this.AddEvent(new ComplexEvent(false, selection.start, selection.end, "Drawn Event", EventStates.other, ""));
         }
     }
 
