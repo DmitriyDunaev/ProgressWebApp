@@ -1,6 +1,25 @@
 ﻿
-export enum EventStates { "incomplete", "pending", "registered", "pendingEmptied", "deleting", "other"};
+export enum EventStates { "free", "registered", "pendingEmptied", "deleting", "other"};
 
+
+export class Course {
+    id: string;
+    logo: string;//link
+    teacherId: string;
+    name: string;
+    type: undefined; //enum
+    payment: undefined; //enum
+    room: string;
+    address: string;
+    numberOfStudentsMin: number;
+    numberOfStudentsMax: number;
+    priceSingle: number;
+    priceCourse: number;
+    courseLength: number;
+    materials: string[];//link
+    information: string;
+    pageContent: string;
+}
 
 //Essentialy the same data structure as in the calendar, but in a form of a class
 //would be better to mpve to a separate file
@@ -35,11 +54,17 @@ export class ComplexEvent extends BasicEvent {
         return new BasicEvent(this.allDay, this.start, this.end, this.title);
     }
 }
+
+export class Event extends BasicEvent {   
+    teacherId: string;
+    courseId: string | undefined;
+    registrationInfo: { studentId: string; status: string; cancellable: boolean }[];
+}
 // export { SpecificClass } from './SpecificClassesFile'; //if you want to split the script into tiny bits but import from this file.
 
 
 //Agenda
-//1) 2 Calendars? => 2 Events? => 2 EventStates?
+//1) 2 Calendars? => 2 Events? => 3 EventStates?
 //2) Write down full parameter lists for the classes
 //3) Full list for EventStates(es)
 //4) Find a nice form plugin [optional]
