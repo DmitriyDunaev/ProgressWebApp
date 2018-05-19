@@ -13,13 +13,13 @@
     "aspnet-webpack": "^2.0.3",
     "aspnet-webpack-react": "^3.0.0",
     "awesome-typescript-loader": "3.2.1",
-    "bootstrap": "3.3.7",
+    "bootstrap": "4.1.1",
     "css-loader": "0.28.4",
     "event-source-polyfill": "0.0.9",
     "extract-text-webpack-plugin": "2.1.2",
     "file-loader": "0.11.2",
     "isomorphic-fetch": "2.2.1",
-    "jquery": "3.2.1",
+    "jquery": "^3.2.1",
     "json-loader": "0.5.4",
     "memory-fs": "^0.4.1",
     "react": "15.6.1",
@@ -35,9 +35,8 @@
   },
   "dependencies": {
     "@types/react-big-calendar": "^0.18.0",
-    "@types/react-form": "^2.16.0",
     "moment": "^2.22.1",
-    "react-big-calendar": "0.18.0",
-    "react-form": "^3.5.5"
+    "popper.js": "^1.14.3",
+    "react-big-calendar": "0.18.0"
   }
 }
