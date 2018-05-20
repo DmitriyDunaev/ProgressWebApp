@@ -1,4 +1,6 @@
-﻿
+﻿import * as React from 'react';
+
+
 export enum EventStates { "free", "registered", "pendingEmptied", "deleting", "other"};
 
 
