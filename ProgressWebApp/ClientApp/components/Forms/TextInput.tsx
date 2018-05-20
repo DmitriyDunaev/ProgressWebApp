@@ -1,25 +1,31 @@
 ﻿import * as React from 'react';
+import { InputValue } from './InputInterfaces'
 
-enum LengthValidationFlags { "TooShort", "TooLong", "valid"}
+ enum LengthValidationFlags { "TooShort", "TooLong", "valid" }//internal
 
+//Constant parameters
 interface TextInputProps {
-    label?: string;
-    prepend?: string;
-    append?: string;
-    validation?: boolean;
-    lengthValidation?: boolean
-    min?: number;
-    max?: number;
+    label?: string;                                     //text above the field (not rendered if empty)
+    prepend?: string;                                   //text before the field (not rendered if empty)
+    append?: string;                                    //text after the field, if no validation (not rendered if empty and not validated)
+    validation?: boolean;                               //turns on validation (general)
+    lengthValidation?: boolean                          //turns on length validation (irrelevant if "validation" == false)
+    min?: number;                                       //minimum number of characters (length validation condition) (ignored if 0)
+    max?: number;                                       //minimum number of characters (length validation condition) (ignored if 0)
+    onChange?: (value: InputValue) => void;             //event triggered when the content of the field changes
+    onValidityChange?: (value: InputValue) => void;     //event triggered when validity changes
 };
 
+//Dynamic parameters (referenced by reder)
 interface TextInputState {
-    untouched: boolean;
-    validLength: LengthValidationFlags;
-    valid: boolean;
+    untouched: boolean;                                 //true until first onChange event
+    validLength: LengthValidationFlags;                 //describes if the content satisfy the length restrictions { "TooShort", "TooLong", "valid" }
+    valid: boolean;                                     //true of all conditions are satisfied
 }
 
 export class TextInput extends React.Component<TextInputProps, TextInputState> {
 
+    //Default properties for when they are unspecified
     public static defaultProps: Partial<TextInputProps> = {
         label: "",
         prepend: "",
@@ -30,7 +36,10 @@ export class TextInput extends React.Component<TextInputProps, TextInputState> {
         max: 0,
     };
 
+    //Holds the copy of the input value for quick global acess
+    private text: string = ""
 
+    //Default state values
     constructor(props: TextInputProps) {
         super(props)
         this.state = {
@@ -40,19 +49,26 @@ export class TextInput extends React.Component<TextInputProps, TextInputState> {
         };
     }
 
-    private text : string
-
+    //onChange Handeler, also generates events that can be handeled outside
     HandleChange(e: React.ChangeEvent<HTMLInputElement>) {
         this.text = e.target.value
-        this.ValidityUpdate()
+        var temp = this.ValidityUpdate()
+        if (this.props.onChange != undefined) {
+            this.props.onChange(new InputValue(this.text, temp, e.target))
+        }
+        if (this.state.valid != temp && this.props.onValidityChange != undefined) {
+            this.props.onValidityChange(new InputValue(this.text, temp, e.target))
+        }
         if (this.state.untouched) {
             this.setState({ untouched: false })
         }
     }
 
+    //Method for updating the value of "validLength", returns true if "validLength" == LengthValidationFlags.valid
     IsLengthValid(): boolean{
         var minV = this.props.min == undefined || this.props.min == 0 || this.text.length >= this.props.min
-        var maxV = this.props.max == undefined || this.props.max == 0 || this.text.length <= this.props.max || (this.props.min != undefined && this.props.max < this.props.min)
+        var maxV = this.props.max == undefined || this.props.max == 0 || this.text.length <= this.props.max
+            || (this.props.min != undefined && this.props.max < this.props.min)
         if (minV) {
             if (maxV) {
                 this.setState({ validLength: LengthValidationFlags.valid })
@@ -65,6 +81,7 @@ export class TextInput extends React.Component<TextInputProps, TextInputState> {
         return false
     }
 
+    //Handels checking all conditions and updating the value of "valid", returns its value
     ValidityUpdate(): boolean {
         if (this.props.validation) {
             var temp = true;
@@ -74,11 +91,11 @@ export class TextInput extends React.Component<TextInputProps, TextInputState> {
             this.setState({ valid: temp })
             return temp
         } else {
-            this.setState({ valid: true })
             return true
         }
     }
 
+    //Renders label if not empty (called by render)
     RrenderLabel() {
         if (this.props.label == "") {
             return null
@@ -88,6 +105,7 @@ export class TextInput extends React.Component<TextInputProps, TextInputState> {
         }
     };
 
+    //Renders prepend if not empty (called by render)
     RenderPrepend() {
         if (this.props.prepend == "") {
             return null
@@ -99,6 +117,7 @@ export class TextInput extends React.Component<TextInputProps, TextInputState> {
         }
     };
 
+    //Renders append if not empty or validation symbol, depending on setup (called by render)
     RenderAppend() {
         if (this.props.validation) {
             if (this.state.valid) {
@@ -126,7 +145,8 @@ export class TextInput extends React.Component<TextInputProps, TextInputState> {
         }
     }
 
-    RrenderWarning() {
+    //Renders list of warnings that are dependant on statge flags (called by render)
+    RrenderWarnings() {
         if (!this.props.validation || this.state.valid || this.state.untouched) {
             return null
         }
@@ -156,7 +176,7 @@ export class TextInput extends React.Component<TextInputProps, TextInputState> {
                 />
                 {this.RenderAppend()}
             </div>
-            {this.RrenderWarning()}
+            {this.RrenderWarnings()}
         </div>
     };
 }

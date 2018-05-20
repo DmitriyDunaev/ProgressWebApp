@@ -1,6 +1,7 @@
 ﻿import * as React from 'react';
 import { RouteComponentProps } from 'react-router';
 import { TextInput } from './Forms/TextInput';
+import { InputValue } from './Forms/InputInterfaces';
 /*
 
 export class Course {
@@ -22,6 +23,21 @@ export class Course {
     pageContent: string;
 }
 */export class CourseEditor extends React.Component<RouteComponentProps<{}>, {}> {
+
+    HandleChange(e: InputValue) {
+        if (e.valid) { 
+            console.log(e.value);
+        }
+    }
+
+    HandleValidityChange(e: InputValue) {
+        if (e.valid) {
+            alert("third form is now valid")
+        } else {
+            alert("third form is now invalid")
+        }
+    }
+
     render() {
         return <div>
             <TextInput
@@ -32,22 +48,30 @@ export class Course {
                 min={8}
                 max={20}
             />
-            <TextInput
-                label="Or just at least 10 characters"
-                validation={true}
-                lengthValidation={true}
-                min={10}
-            />
+            <br />
             <TextInput
                 label="Or just at most 12 characters"
+                prepend="this one will write content in consol if valid"
+                onChange={(e) => this.HandleChange(e)}
                 validation={true}
                 lengthValidation={true}
                 max={12}
             />
+            <br />
             <TextInput
-                prepend="Label above is not mandatory!"
+                label="Or just at least 10 characters"
+                prepend="this one will tell if validity changes"
+                onValidityChange={(e) => this.HandleValidityChange(e)}
+                validation={true}
+                lengthValidation={true}
+                min={10}
+            />
+            <br />
+            <TextInput
+                label="Prepend below is not mandatory!"
                 append="if you don't validate, you can write here!"
             />
+            <br/>
             PS: I know need to make warnings and labels use different styles
         </div>
     };
