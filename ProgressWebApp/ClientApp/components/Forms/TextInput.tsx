@@ -1,5 +1,5 @@
 ﻿import * as React from 'react';
-import { InputValue, InputWidth } from './InputInterfaces'
+import { InputEvent, InputWidth } from './InputInterfaces'
 
 enum LengthValidationFlags { "TooShort", "TooLong", "valid" }//internal
 
@@ -11,12 +11,15 @@ interface TextInputProps {
     prepend?: string;                                   //text before the field (not rendered if empty)
     append?: string;                                    //text after the field, if no validation (not rendered if empty and not validated)
     validation?: boolean;                               //turns on validation (general)
+    initialValidity?: boolean;                          //determines initial validity
     validationIndicator?: boolean                       //determines if the vakidation indicator will be shown at the right
     lengthValidation?: boolean                          //turns on length validation (irrelevant if "validation" == false)
     min?: number;                                       //minimum number of characters (length validation condition) (ignored if 0)
     max?: number;                                       //minimum number of characters (length validation condition) (ignored if 0)
-    onChange?: (value: InputValue) => void;             //event triggered when the content of the field changes
-    onValidityChange?: (value: InputValue) => void;     //event triggered when validity changes
+    onChange?: (value: InputEvent) => void;             //event triggered when the content of the field changes
+    onValidityChange?: (value: InputEvent) => void;     //event triggered when validity changes
+    onFocus?: (value: InputEvent) => void;              //event triggered when field is selected
+    onBlur?: (value: InputEvent) => void;               //event triggered when field is deselected
     className?: string                                  //HTML classes
     width?: InputWidth                                  //specify the width of the input
 };
@@ -25,7 +28,7 @@ interface TextInputProps {
 interface TextInputState {
     untouched: boolean;                                 //true until first onChange event
     validLength: LengthValidationFlags;                 //describes if the content satisfy the length restrictions { "TooShort", "TooLong", "valid" }
-    valid: boolean;                                     //true of all conditions are satisfied
+    valid: boolean;                                     //true if all conditions are satisfied
 }
 
 export class TextInput extends React.Component<TextInputProps, TextInputState> {
@@ -58,9 +61,8 @@ export class TextInput extends React.Component<TextInputProps, TextInputState> {
         this.state = {
             untouched: true,
             validLength: LengthValidationFlags.valid,
-            valid: !this.props.validation,
+            valid: !this.props.validation || (this.props.initialValidity != undefined && this.props.initialValidity),
         };
-        this.ValidityUpdate()
     }
 
     //onChange Handeler, also generates events that can be handeled outside
@@ -68,16 +70,28 @@ export class TextInput extends React.Component<TextInputProps, TextInputState> {
         this.text = e.target.value
         var temp = this.ValidityUpdate()
         if (this.props.onChange != undefined) {
-            this.props.onChange(new InputValue(this.text, temp, e.target))
+            this.props.onChange(new InputEvent(this.text, temp))
         }
         if (this.state.valid != temp && this.props.onValidityChange != undefined) {
-            this.props.onValidityChange(new InputValue(this.text, temp, e.target))
+            this.props.onValidityChange(new InputEvent(this.text, temp))
         }
         if (this.state.untouched) {
             this.setState({ untouched: false })
         }
         if (!this.props.validation) {
             this.forceUpdate()
+        }
+    }
+
+    HandleFocus(e: React.FocusEvent<HTMLInputElement>) {
+        if (this.props.onFocus != undefined) {
+            this.props.onFocus(new InputEvent(this.text, this.state.valid))
+        }
+    }
+
+    HandleBlur(e: React.FocusEvent<HTMLInputElement>) {
+        if (this.props.onBlur != undefined) {
+            this.props.onBlur(new InputEvent(this.text, this.state.valid))
         }
     }
 
@@ -137,13 +151,13 @@ export class TextInput extends React.Component<TextInputProps, TextInputState> {
     //Renders append if not empty or validation symbol, depending on setup (called by render)
     RenderAppend() {
         if (this.props.validation && this.props.validationIndicator) {
+            if (this.state.untouched) {
+                return null
+            }
             if (this.state.valid) {
                 return <div className="input-group-append input-group-addon">
                     < span className="input-group-text" > ✓ </span >
                 </div>
-            }
-            else if (this.state.untouched) {
-                return null
             }
             return <div className="input-group-append input-group-addon">
                 < span className="input-group-text" > ✗ </span >
@@ -181,6 +195,13 @@ export class TextInput extends React.Component<TextInputProps, TextInputState> {
 
     render() {
         var classes: string = ""
+        var inputGroupString: string = ""
+        if (!(this.props.prepend == "" && (
+                (this.props.append == "" && !this.props.validation) || 
+                (this.props.append == "" && this.props.validation && !this.props.validationIndicator) ||
+                (this.props.append == "" && this.props.validation && this.props.validationIndicator && this.state.untouched)))) {
+            inputGroupString +="input-group"
+        }
         if (this.props.className != undefined) {
             classes += this.props.className
         }
@@ -210,7 +231,7 @@ export class TextInput extends React.Component<TextInputProps, TextInputState> {
         }
         return <div className={"form-group" + classes}>
             {this.RrenderLabel()}
-            <div className="input-group">
+            <div className={inputGroupString}>
                 {this.RenderPrepend()}
                 <input type="text"
                     className="form-control"
@@ -219,6 +240,8 @@ export class TextInput extends React.Component<TextInputProps, TextInputState> {
                     value={this.text}
                     placeholder={this.props.placeholder}
                     onChange={(e) => this.HandleChange(e)}
+                    onFocus={(e) => this.HandleFocus(e)}
+                    onBlur={(e) => this.HandleBlur(e)}
                 />
                 {this.RenderAppend()}
             </div>

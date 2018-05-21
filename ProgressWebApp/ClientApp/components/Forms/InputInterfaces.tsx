@@ -2,14 +2,12 @@
 
 export enum InputWidth {"full", "half", "third", "quorter", "twoThirds"}
 
-export class InputValue{
+export class InputEvent{
     value: string;
     valid: boolean;
-    teargert: HTMLInputElement;
 
-    constructor(value: string, valid: boolean, teargert: HTMLInputElement) {
+    constructor(value: string, valid: boolean) {
         this.value = value;
         this.valid = valid;
-        this.teargert = teargert;
     }
 }

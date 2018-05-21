@@ -1,5 +1,5 @@
 ﻿import * as React from 'react';
-import { InputValue, InputWidth } from './InputInterfaces'
+import { InputEvent, InputWidth } from './InputInterfaces'
 
 enum RangeValidationFlags { "TooLow", "TooHigh", "valid" }//internal
 
@@ -7,17 +7,20 @@ enum RangeValidationFlags { "TooLow", "TooHigh", "valid" }//internal
 interface NumberInputProps {
     label?: string;                                     //text above the field (not rendered if empty)
     placeholder?: string                                //text displayed when the field is empty
-    initialValue?: 0                                    //staring value
+    initialValue?: number                               //staring value
     prepend?: string;                                   //text before the field (not rendered if empty)
     append?: string;                                    //text after the field, if no validation (not rendered if empty and not validated)
     integer?: boolean;                                  //used to limit output to integers
     validation?: boolean;                               //turns on validation (general)
+    initialValidity?: boolean;                          //determines initial validity
     validationIndicator?: boolean                       //determines if the vakidation indicator will be shown at the right
     rangeValidation?: boolean                           //turns on range validation (irrelevant if "validation" == false)
     min?: number;                                       //minimum value (range validation condition)
     max?: number;                                       //minimum value (range validation condition)
-    onChange?: (value: InputValue) => void;             //event triggered when the content of the field changes
-    onValidityChange?: (value: InputValue) => void;     //event triggered when validity changes
+    onChange?: (value: InputEvent) => void;             //event triggered when the content of the field changes
+    onValidityChange?: (value: InputEvent) => void;     //event triggered when validity changes
+    onFocus?: (value: InputEvent) => void;              //event triggered when field is selected
+    onBlur?: (value: InputEvent) => void;               //event triggered when field is deselected
     className?: string                                  //HTML classes
     width?: InputWidth                                  //specify the width of the input
 };
@@ -26,7 +29,7 @@ interface NumberInputProps {
 interface NumberInputState {
     untouched: boolean;                                 //true until first onChange event
     validRange: RangeValidationFlags;                   //describes if the content satisfy the length restrictions { "TooShort", "TooLong", "valid" }
-    valid: boolean;                                     //true of all conditions are satisfied
+    valid: boolean;                                     //true if all conditions are satisfied
 }
 
 export class NumberInput extends React.Component<NumberInputProps, NumberInputState> {
@@ -41,6 +44,7 @@ export class NumberInput extends React.Component<NumberInputProps, NumberInputSt
         validation: false,
         validationIndicator: true,
         rangeValidation: false,
+        initialValidity: true,
         min: 0,
         max: Number.MAX_VALUE,
         className: "",
@@ -64,9 +68,8 @@ export class NumberInput extends React.Component<NumberInputProps, NumberInputSt
         this.state = {
             untouched: true,
             validRange: RangeValidationFlags.valid,
-            valid: !this.props.validation,
+            valid: !this.props.validation || (this.props.initialValidity != undefined && this.props.initialValidity),
         };
-        this.ValidityUpdate()
     }
 
     //onChange Handeler, also generates events that can be handeled outside
@@ -78,16 +81,28 @@ export class NumberInput extends React.Component<NumberInputProps, NumberInputSt
         }
         var temp = this.ValidityUpdate()
         if (this.props.onChange != undefined) {
-            this.props.onChange(new InputValue(e.target.value, temp, e.target))
+            this.props.onChange(new InputEvent(e.target.value, temp))
         }
         if (this.state.valid != temp && this.props.onValidityChange != undefined) {
-            this.props.onValidityChange(new InputValue(e.target.value, temp, e.target))
+            this.props.onValidityChange(new InputEvent(e.target.value, temp))
         }
         if (this.state.untouched) {
             this.setState({ untouched: false })
         }
         if (!this.props.validation) {
             this.forceUpdate()
+        }
+    }
+
+    HandleFocus(e: React.FocusEvent<HTMLInputElement>) {
+        if (this.props.onFocus != undefined) {
+            this.props.onFocus(new InputEvent(this.value.toString(), this.state.valid))
+        }
+    }
+
+    HandleBlur(e: React.FocusEvent<HTMLInputElement>) {
+        if (this.props.onBlur != undefined) {
+            this.props.onBlur(new InputEvent(this.value.toString(), this.state.valid))
         }
     }
 
@@ -142,18 +157,18 @@ export class NumberInput extends React.Component<NumberInputProps, NumberInputSt
                 < span className="input-group-text" > {this.props.prepend}</span >
             </div >
         }
-    };
+    }
 
     //Renders append if not empty or validation symbol, depending on setup (called by render)
     RenderAppend() {
         if (this.props.validation && this.props.validationIndicator) {
+            if (this.state.untouched) {
+                return null
+            }
             if (this.state.valid) {
                 return <div className="input-group-append input-group-addon">
                     < span className="input-group-text" > ✓ </span >
                 </div>
-            }
-            else if (this.state.untouched) {
-                return null
             }
             return <div className="input-group-append input-group-addon">
                 < span className="input-group-text" > ✗ </span >
@@ -190,7 +205,14 @@ export class NumberInput extends React.Component<NumberInputProps, NumberInputSt
     }
 
     render() {
-        var classes : string = ""
+        var classes: string = ""
+        var inputGroupString: string = ""
+        if (!(this.props.prepend == "" && (
+            (this.props.append == "" && !this.props.validation) ||
+            (this.props.append == "" && this.props.validation && !this.props.validationIndicator) ||
+            (this.props.append == "" && this.props.validation && this.props.validationIndicator && this.state.untouched)))) {
+            inputGroupString += "input-group"
+        }
         if (this.props.className != undefined) {
            classes += this.props.className
         }
@@ -220,7 +242,7 @@ export class NumberInput extends React.Component<NumberInputProps, NumberInputSt
         }
         return <div className={"form-group" + classes}>
             {this.RrenderLabel()}
-            <div className="input-group">
+            <div className={inputGroupString}>
                 {this.RenderPrepend()}
                 <input type="number"
                     className="form-control"
@@ -229,6 +251,8 @@ export class NumberInput extends React.Component<NumberInputProps, NumberInputSt
                     value={this.value}
                     placeholder={this.props.placeholder}
                     onChange={(e) => this.HandleChange(e)}
+                    onFocus={(e) => this.HandleFocus(e)}
+                    onBlur={(e) => this.HandleBlur(e)}
                     min={this.props.min}
                     max={this.props.max}
                 />
