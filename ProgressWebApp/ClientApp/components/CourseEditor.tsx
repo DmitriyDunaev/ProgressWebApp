@@ -1,7 +1,8 @@
 ﻿import * as React from 'react';
 import { RouteComponentProps } from 'react-router';
 import { TextInput } from './Forms/TextInput';
-import { InputValue } from './Forms/InputInterfaces';
+import { NumberInput } from './Forms/NumberInput';
+import { InputValue, InputWidth } from './Forms/InputInterfaces';
 /*
 
 export class Course {
@@ -40,39 +41,55 @@ export class Course {
 
     render() {
         return <div>
-            <TextInput
-                label="Can check for 8-20 characters"
-                prepend="You can write stuff here"
-                validation={true}
-                lengthValidation={true}
-                min={8}
-                max={20}
-            />
-            <br />
-            <TextInput
-                label="Or just at most 12 characters"
-                prepend="this one will write content in consol if valid"
-                onChange={(e) => this.HandleChange(e)}
-                validation={true}
-                lengthValidation={true}
-                max={12}
-            />
-            <br />
-            <TextInput
-                label="Or just at least 10 characters"
-                prepend="this one will tell if validity changes"
-                onValidityChange={(e) => this.HandleValidityChange(e)}
-                validation={true}
-                lengthValidation={true}
-                min={10}
-            />
-            <br />
-            <TextInput
-                label="Prepend below is not mandatory!"
-                append="if you don't validate, you can write here!"
-            />
-            <br/>
-            PS: I know need to make warnings and labels use different styles
+            <div className="form-row row">
+                <TextInput
+                    label="Can check for 8-20 characters"
+                    prepend="You can write stuff here"
+                    placeholder="Or here!"
+                    validation={true}
+                    lengthValidation={true}
+                    min={8}
+                    max={20}
+                    width={InputWidth.half}
+                />
+                <TextInput
+                    label="Or just at most 12 characters"
+                    prepend="this one will write content in consol if valid"
+                    onChange={(e) => this.HandleChange(e)}
+                    validation={true}
+                    lengthValidation={true}
+                    max={12}
+                    width={InputWidth.half}
+                    />
+            </div>
+            <div className="form-row row">
+                <TextInput
+                    label="Or just at least 14 characters"
+                    prepend="this one will tell if validity changes"
+                    onValidityChange={(e) => this.HandleValidityChange(e)}
+                    initialValue="given value"
+                    validation={true}
+                    lengthValidation={true}
+                    min={14}
+                    width={InputWidth.third}
+                />
+                <TextInput
+                    label="Prepend below is not mandatory!"
+                    append="if you don't validate or turned the indicator off, you can write here!"
+                    width={InputWidth.twoThirds}
+                />
+            </div >
+            <div className="form-row row">
+                <NumberInput
+                    label="Can check for values between 10 and 3000"
+                    prepend="You can write stuff here"
+                    placeholder="Or here!"
+                    validation={true}
+                    rangeValidation={true}
+                    min={10}
+                    max={3000}
+                />
+            </div >
         </div>
-    };
+    }
 }

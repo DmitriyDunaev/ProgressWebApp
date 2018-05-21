@@ -1,5 +1,7 @@
 ﻿import * as React from 'react';
 
+export enum InputWidth {"full", "half", "third", "quorter", "twoThirds"}
+
 export class InputValue{
     value: string;
     valid: boolean;
