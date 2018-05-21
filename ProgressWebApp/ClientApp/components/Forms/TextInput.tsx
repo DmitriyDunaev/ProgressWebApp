@@ -199,7 +199,7 @@ export class TextInput extends React.Component<TextInputProps, TextInputState> {
         if (!(this.props.prepend == "" && (
                 (this.props.append == "" && !this.props.validation) || 
                 (this.props.append == "" && this.props.validation && !this.props.validationIndicator) ||
-                (this.props.append == "" && this.props.validation && this.props.validationIndicator && this.state.untouched)))) {
+                (this.props.validation && this.props.validationIndicator && this.state.untouched)))) {
             inputGroupString +="input-group"
         }
         if (this.props.className != undefined) {

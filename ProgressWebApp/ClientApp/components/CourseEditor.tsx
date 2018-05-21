@@ -142,6 +142,7 @@ export class CourseEditor extends React.Component<RouteComponentProps<{}>, {}> {
                     append="forints"
                     validation={true}
                     rangeValidation={true}
+                    validationIndicator={false}
                     min={0}
                     max={10000}
                     width={InputWidth.third}
@@ -151,64 +152,13 @@ export class CourseEditor extends React.Component<RouteComponentProps<{}>, {}> {
                     append="forints"
                     validation={true}
                     rangeValidation={true}
+                    validationIndicator={false}
                     min={0}
                     max={10000}
                     width={InputWidth.third}
                 />
                 <SelectInput
                     prepend="Type:"
-                    values={[
-                        new SelectValue("Before the lesson", "pre"),
-                        new SelectValue("After the lesson", "post"),
-                        new SelectValue("Any", "pre-post"),
-                        new SelectValue("Transaction befor the lesson", "early")
-                    ]}
-                    width={InputWidth.third}
-                />
-            </div>
-            <h1>Form; Version 2</h1>
-            <div className="form-row row">
-                <TextInput
-                    label="Name"
-                    placeholder="Enter the name of the Subject"
-                    validation={true}
-                    lengthValidation={true}
-                    min={5}
-                    max={63}
-                    width={InputWidth.twoThirds}
-                />
-                <SelectInput
-                    label="Type of the Subject"
-                    values={[
-                        new SelectValue("Single Lecture", "lecture"),
-                        new SelectValue("Course", "course"),
-                        new SelectValue("Practice", "Practice"),
-                        new SelectValue("Semenar", "semenar"),
-                    ]}
-                    width={InputWidth.third}
-                />
-            </div>
-            <div className="form-row row">
-                <NumberInput
-                    label="Price of a single lesson"
-                    append="forints"
-                    validation={true}
-                    rangeValidation={true}
-                    min={0}
-                    max={10000}
-                    width={InputWidth.third}
-                />
-                <NumberInput
-                    label="Price of a complete course"
-                    append="forints"
-                    validation={true}
-                    rangeValidation={true}
-                    min={0}
-                    max={10000}
-                    width={InputWidth.third}
-                />
-                <SelectInput
-                    label="Type of payment you prefer"
                     values={[
                         new SelectValue("Before the lesson", "pre"),
                         new SelectValue("After the lesson", "post"),

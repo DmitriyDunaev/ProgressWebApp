@@ -66,6 +66,7 @@ export class SelectInput extends React.Component<SelectInputProps, SelectInputSt
             this.props.onChange(new InputEvent(e.currentTarget.value, this.state.valid))
         }
         this.value = e.currentTarget.value
+        this.forceUpdate()
     }
 
     HandelClick(e: React.MouseEvent<HTMLSelectElement>) {
