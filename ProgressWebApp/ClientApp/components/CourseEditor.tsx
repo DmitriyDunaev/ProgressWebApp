@@ -4,6 +4,7 @@ import { TextInput } from './Forms/TextInput';
 import { NumberInput } from './Forms/NumberInput';
 import { SelectInput, SelectType, SelectValue } from './Forms/SelectInput';
 import { InputEvent, InputWidth } from './Forms/InputInterfaces';
+import { CheckboxInput } from './Forms/CheckboxInput';
 
 
 export class CourseEditor extends React.Component<RouteComponentProps<{}>, {}> {
@@ -53,6 +54,24 @@ export class CourseEditor extends React.Component<RouteComponentProps<{}>, {}> {
                     width={InputWidth.half}
                     onFocus={(e) => this.HandleSelect(e)}
                     />
+            </div>
+            <div className="form-row row">
+                <CheckboxInput
+                    label="label"
+                    text="text"
+                    initialValue={false}
+                    width={InputWidth.half}
+                    textAfterCheckbox={true}
+                />
+                <CheckboxInput
+                    label="label"
+                    text="text"
+                    initialValue={true}
+                    width={InputWidth.half}
+                    textAfterCheckbox={false}
+                    useCorrectValue={true}
+                    correctValue={false}
+                />
             </div>
             <div className="form-row row">
                 <TextInput
@@ -108,6 +127,47 @@ export class CourseEditor extends React.Component<RouteComponentProps<{}>, {}> {
                     onChange={(e) => this.HandelOptions(e)}
                 />
             </div >
+            <h1>Layout Tester</h1>
+            <div className="form-row row">
+                <h5>6/6</h5>
+                <TextInput width={6} />
+                <TextInput width={6} />
+            </div>
+            <div className="form-row row">
+                <h5>5/7</h5>
+                <TextInput width={5} />
+                <TextInput width={7} />
+            </div>
+            <div className="form-row row">
+                <h5>4/8, 4/4/4</h5>
+                <TextInput width={4} />
+                <TextInput width={8} />
+            </div>
+            <div className="form-row row">
+                <TextInput width={4} />
+                <TextInput width={4} />
+                <TextInput width={4} />
+            </div>
+            <div className="form-row row">
+                <h5>3/9, 3/3/6, 3/3/3/3</h5>
+                <TextInput width={3} />
+                <TextInput width={9} />
+            </div>
+            <div className="form-row row">
+                <TextInput width={3} />
+                <TextInput width={3} />
+                <TextInput width={6} />
+            </div>
+            <div className="form-row row">
+                <TextInput width={3} />
+                <TextInput width={3} />
+                <TextInput width={3} />
+                <TextInput width={3} />
+            </div>
+            <div className="form-row row">
+                <TextInput width={2} />
+                <TextInput width={10} />
+            </div>
         </div>
     }
 
@@ -123,7 +183,7 @@ export class CourseEditor extends React.Component<RouteComponentProps<{}>, {}> {
                     lengthValidation={true}
                     min={5}
                     max={63}
-                    width={InputWidth.twoThirds}
+                    width={InputWidth.eight}
                 />
                 <SelectInput
                     prepend="Type:"
@@ -133,7 +193,7 @@ export class CourseEditor extends React.Component<RouteComponentProps<{}>, {}> {
                         new SelectValue("Practice", "Practice"),
                         new SelectValue("Semenar", "semenar"),
                     ]}
-                    width={InputWidth.third}
+                    width={InputWidth.four}
                 />
             </div>
             <div className="form-row row">
@@ -145,7 +205,7 @@ export class CourseEditor extends React.Component<RouteComponentProps<{}>, {}> {
                     validationIndicator={false}
                     min={0}
                     max={10000}
-                    width={InputWidth.third}
+                    width={InputWidth.four}
                 />
                 <NumberInput
                     prepend="Course Price:"
@@ -155,17 +215,17 @@ export class CourseEditor extends React.Component<RouteComponentProps<{}>, {}> {
                     validationIndicator={false}
                     min={0}
                     max={10000}
-                    width={InputWidth.third}
+                    width={InputWidth.four}
                 />
                 <SelectInput
-                    prepend="Type:"
+                    prepend="Payment:"
                     values={[
                         new SelectValue("Before the lesson", "pre"),
                         new SelectValue("After the lesson", "post"),
                         new SelectValue("Any", "pre-post"),
                         new SelectValue("Transaction befor the lesson", "early")
                     ]}
-                    width={InputWidth.third}
+                    width={InputWidth.four}
                 />
             </div>
         </div>

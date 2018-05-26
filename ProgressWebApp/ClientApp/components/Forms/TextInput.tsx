@@ -1,5 +1,5 @@
 ﻿import * as React from 'react';
-import { InputEvent, InputWidth } from './InputInterfaces'
+import { InputEvent, InputWidth, GetInputWidthClass } from './InputInterfaces'
 
 enum LengthValidationFlags { "TooShort", "TooLong", "valid" }//internal
 
@@ -142,7 +142,7 @@ export class TextInput extends React.Component<TextInputProps, TextInputState> {
             return null
         }
         else { 
-            return <div className="input-group-prepend input-group-addon">
+            return <div className=" input-group-addon">
                 < span className="input-group-text" > {this.props.prepend}</span >
             </div >
         }
@@ -155,19 +155,19 @@ export class TextInput extends React.Component<TextInputProps, TextInputState> {
                 return null
             }
             if (this.state.valid) {
-                return <div className="input-group-append input-group-addon">
-                    < span className="input-group-text" > ✓ </span >
+                return <div className=" input-group-addon" style={{ minWidth: 38 }}>
+                    < span className="input-group-text" >✓</span >
                 </div>
             }
-            return <div className="input-group-append input-group-addon">
-                < span className="input-group-text" > ✗ </span >
+            return <div className=" input-group-addon" style={{ minWidth: 38 }}>
+                < span className="input-group-text" >✗</span >
             </div>
         } else {
             if (this.props.append == "") {
                 return null
             }
             else {
-                return <div className="input-group-append input-group-addon">
+                return <div className=" input-group-addon">
                     < span className="input-group-text" >{this.props.append}</span >
                 </div>
             }
@@ -197,10 +197,10 @@ export class TextInput extends React.Component<TextInputProps, TextInputState> {
         var classes: string = ""
         var inputGroupString: string = ""
         if (!(this.props.prepend == "" && (
-                (this.props.append == "" && !this.props.validation) || 
-                (this.props.append == "" && this.props.validation && !this.props.validationIndicator) ||
-                (this.props.validation && this.props.validationIndicator && this.state.untouched)))) {
-            inputGroupString +="input-group"
+            (this.props.append == "" && !this.props.validation) ||
+            (this.props.append == "" && this.props.validation && !this.props.validationIndicator) ||
+            (this.props.validation && this.props.validationIndicator && this.state.untouched)))) {
+            inputGroupString += "input-group"
         }
         if (this.props.className != undefined) {
             classes += this.props.className
@@ -212,22 +212,8 @@ export class TextInput extends React.Component<TextInputProps, TextInputState> {
                 classes += " has-error "
             }
         }
-        switch (this.props.width) {
-            case InputWidth.full:
-                classes += " col-md-12 "
-                break
-            case InputWidth.half:
-                classes += " col-md-6 "
-                break
-            case InputWidth.quorter:
-                classes += " col-md-3 "
-                break
-            case InputWidth.third:
-                classes += " col-md-4 "
-                break
-            case InputWidth.twoThirds:
-                classes += " col-md-8 "
-                break
+        if (this.props.width != undefined) { 
+            classes += GetInputWidthClass(this.props.width)
         }
         return <div className={"form-group" + classes}>
             {this.RrenderLabel()}
@@ -235,6 +221,7 @@ export class TextInput extends React.Component<TextInputProps, TextInputState> {
                 {this.RenderPrepend()}
                 <input type="text"
                     className="form-control"
+                    style={{ zIndex: 0 }}
                     spellCheck={true}
                     aria-label={this.props.label}
                     value={this.text}

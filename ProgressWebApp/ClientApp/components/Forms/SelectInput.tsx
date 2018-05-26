@@ -1,5 +1,5 @@
 ﻿import * as React from 'react';
-import { InputEvent, InputWidth } from './InputInterfaces'
+import { InputEvent, InputWidth, GetInputWidthClass } from './InputInterfaces'
 
 export class SelectValue{
     name: string  // What is displayed
@@ -19,6 +19,7 @@ interface SelectInputProps {
     prepend?: string;                                   //text before the field (not rendered if empty)
     append?: string;                                    //text after the field, if no validation (not rendered if empty and not validated)
     initialValueIndex?: number;                         //staring value
+    changeIndicator?: boolean                           //will this field furn green after being touched?
     onChange?: (value: InputEvent) => void;             //event triggered when the content of the field changes
     onFocus?: (value: InputEvent) => void;              //event triggered when field is selected
     className?: string                                  //HTML classes
@@ -38,6 +39,7 @@ export class SelectInput extends React.Component<SelectInputProps, SelectInputSt
         prepend: "",
         append: "",
         initialValueIndex: 0,
+        changeIndicator: true,
         className: "",
         width: InputWidth.full,
     };
@@ -97,7 +99,7 @@ export class SelectInput extends React.Component<SelectInputProps, SelectInputSt
             return null
         }
         else {
-            return <div className="input-group-prepend input-group-addon">
+            return <div className=" input-group-addon">
                 < span className="input-group-text" > {this.props.prepend}</span >
             </div >
         }
@@ -109,7 +111,7 @@ export class SelectInput extends React.Component<SelectInputProps, SelectInputSt
             return null
         }
         else {
-            return <div className="input-group-append input-group-addon">
+            return <div className=" input-group-addon">
                 < span className="input-group-text" >{this.props.append}</span >
             </div>
         }
@@ -125,29 +127,15 @@ export class SelectInput extends React.Component<SelectInputProps, SelectInputSt
         if (this.props.className != undefined) {
             classes += this.props.className
         }
-        if (!this.state.untouched) {
+        if (!this.state.untouched && this.props.changeIndicator) {
             classes += " has-success "
         }
         var inputGroupString: string = ""
         if (!(this.props.prepend == "" && this.props.append == "")) {
             inputGroupString = "input-group"
         }
-        switch (this.props.width) {
-            case InputWidth.full:
-                classes += " col-md-12 "
-                break
-            case InputWidth.half:
-                classes += " col-md-6 "
-                break
-            case InputWidth.quorter:
-                classes += " col-md-3 "
-                break
-            case InputWidth.third:
-                classes += " col-md-4 "
-                break
-            case InputWidth.twoThirds:
-                classes += " col-md-8 "
-                break
+        if (this.props.width != undefined) {
+            classes += GetInputWidthClass(this.props.width)
         }
         return <div className={"form-group" + classes}>
             {this.RrenderLabel()}
@@ -155,6 +143,7 @@ export class SelectInput extends React.Component<SelectInputProps, SelectInputSt
                 {this.RenderPrepend()}
                 <select
                     className="form-control"
+                    style={{ zIndex: 0 }}
                     onChange={(e) => this.HandelChange(e)}
                     onClick={(e) => this.HandelClick(e)}
                     value={this.value}
@@ -163,5 +152,6 @@ export class SelectInput extends React.Component<SelectInputProps, SelectInputSt
                 </select>
                 {this.RenderAppend()}
             </div>
-        </div>}
+        </div>
+    }
 }
