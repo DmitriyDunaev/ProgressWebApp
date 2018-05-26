@@ -23,6 +23,7 @@ interface NumberInputProps {
     onBlur?: (value: InputEvent) => void;               //event triggered when field is deselected
     className?: string                                  //HTML classes
     width?: InputWidth                                  //specify the width of the input
+    disabled?: boolean                                  //disables the input and alteres styles
 };
 
 //Dynamic parameters (referenced by reder)
@@ -49,6 +50,7 @@ export class NumberInput extends React.Component<NumberInputProps, NumberInputSt
         max: Number.MAX_VALUE,
         className: "",
         width: InputWidth.full,
+        disabled: false,
     };
 
     //Holds the copy of the input value for quick global acess
@@ -192,14 +194,10 @@ export class NumberInput extends React.Component<NumberInputProps, NumberInputSt
         }
         else {
             var messages: string[] = []
-            switch (this.state.validRange) {
-                case RangeValidationFlags.TooLow:
-                    messages.push("The value must be " + this.props.min + " or above.")
-                    break
-                case RangeValidationFlags.TooHigh:
-                    messages.push("Ther value must be " + this.props.max + " or below.")
-                    break
-            }
+            if (this.state.validRange == RangeValidationFlags.TooLow)
+                messages.push("The value must be " + this.props.min + " or above.")
+            if (this.state.validRange == RangeValidationFlags.TooHigh)
+                messages.push("Ther value must be " + this.props.max + " or below.")
             return messages.map((message) => <label className="control-label">{message}</label>)
         }
     }
@@ -216,7 +214,7 @@ export class NumberInput extends React.Component<NumberInputProps, NumberInputSt
         if (this.props.className != undefined) {
            classes += this.props.className
         }
-        if (!this.state.untouched && this.props.validation) {
+        if (!this.state.untouched && this.props.validation && !this.props.disabled) {
             if (this.state.valid) {
                 classes += " has-success "
             } else {
@@ -240,8 +238,9 @@ export class NumberInput extends React.Component<NumberInputProps, NumberInputSt
                     onChange={(e) => this.HandleChange(e)}
                     onFocus={(e) => this.HandleFocus(e)}
                     onBlur={(e) => this.HandleBlur(e)}
-                    min={this.props.min}
-                    max={this.props.max}
+                    //min={this.props.min}
+                    //max={this.props.max}
+                    disabled={this.props.disabled}
                 />
                 {this.RenderAppend()}
             </div>

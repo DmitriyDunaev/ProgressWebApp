@@ -7,6 +7,7 @@ export enum InputWidth {
 
 export function GetInputWidthClass(iw : InputWidth) : string{
     switch (iw) {
+        case InputWidth.twelve:
         case InputWidth.full:
             return " col-lg-12 "
         case InputWidth.two:

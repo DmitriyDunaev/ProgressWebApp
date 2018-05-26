@@ -6,11 +6,223 @@ import { SelectInput, SelectType, SelectValue } from './Forms/SelectInput';
 import { InputEvent, InputWidth } from './Forms/InputInterfaces';
 import { CheckboxInput } from './Forms/CheckboxInput';
 
+//Dynamic parameters (referenced by reder)
+interface CourseEditorState {
+    name: string;
+    nameValid: boolean;
+    type: string;
+    typeValid: boolean;
+    room: string;
+    address: string;
+    numberOfStudentsMin: number;
+    numberOfStudentsMinValid: boolean;
+    numberOfStudentsMax: number;
+    numberOfStudentsMaxValid: boolean;
+    allowSingle: boolean;
+    allowCourse: boolean;
+    priceSingle: number;
+    priceSingleValid: boolean;
+    priceCourse: number;
+    priceCourseValid: boolean;
+    paymentMethodSingle: string;
+    paymentMethodCourse: string;
+    courseLength: number;
+    courseLengthValid: boolean;
+    //materials: string[];                 
+    //information: string;
+    //pageContent: string;    
+}
 
-export class CourseEditor extends React.Component<RouteComponentProps<{}>, {}> {
+export class CourseEditor extends React.Component<RouteComponentProps<{}>, CourseEditorState> {
+
+    constructor() {
+        super()
+        this.state = {
+            name: "",
+            nameValid: false,
+            type: "",
+            typeValid: false,
+            room: "",
+            address: "",
+            numberOfStudentsMin: 1,
+            numberOfStudentsMinValid: true,
+            numberOfStudentsMax: 1,
+            numberOfStudentsMaxValid: true,
+            allowSingle: true,
+            allowCourse: false,
+            priceSingle: 0,
+            priceSingleValid: false,
+            priceCourse: 0,
+            priceCourseValid: false,
+            paymentMethodSingle: "",
+            paymentMethodCourse: "",
+            courseLength: 4,
+            courseLengthValid: true
+        }
+    }
+
+    NumberOfStudentsMinUpdate(e: InputEvent) {
+        this.setState({
+            numberOfStudentsMin: parseInt(e.value),
+            numberOfStudentsMinValid: e.valid,
+        });
+    }
+
+    NumberOfStudentsMaxUpdate(e: InputEvent) {
+        this.setState({
+            numberOfStudentsMax: parseInt(e.value),
+            numberOfStudentsMaxValid: e.valid,
+        });
+    }
+
+    AllowSingleUpdate(e: InputEvent) {
+        this.setState({
+            allowSingle: e.value == 'true',
+        });
+    }
+
+    AllowCourseUpdate(e: InputEvent) {
+        this.setState({
+            allowCourse: e.value == 'true',
+        });
+    }
+
+    render() {
+        return <div>{this.RenderDemo()}
+            <h1>Form; Version 1</h1>
+            <div className="form-row row">
+                <TextInput
+                    prepend="Name:"
+                    validation={true}
+                    lengthValidation={true}
+                    initialValidity={false}
+                    min={5}
+                    max={62}
+                    width={InputWidth.half}
+                />
+                <SelectInput
+                    prepend="Type:"
+                    initialValidity={false}
+                    values={[
+                        new SelectValue("Single Lecture", "lecture"),
+                        new SelectValue("Course", "course"),
+                        new SelectValue("Practice", "practice"),
+                        new SelectValue("Semenar", "semenar"),
+                    ]}
+                    width={InputWidth.half}
+                />
+            </div>
+            <div className="form-row row">
+                <div className="form-group col-lg-4">
+                    <div>
+                        <div className="form-control" style={{ backgroundColor: "#eeeeee" }}>
+                            < span className="input-group-text control-label" >Number of students on a given evnt</span >
+                        </div>
+                    </div>
+                </div>
+                <NumberInput
+                    prepend="Minimum:"
+                    append="forints"
+                    validation={true}
+                    rangeValidation={true}
+                    validationIndicator={false}
+                    initialValue={this.state.numberOfStudentsMin}
+                    initialValidity={this.state.numberOfStudentsMinValid}
+                    integer={true}
+                    min={1}
+                    max={this.state.numberOfStudentsMax}
+                    onChange={(e) => this.NumberOfStudentsMinUpdate(e)}
+                    width={InputWidth.third}
+                />
+                <NumberInput
+                    prepend="Maximum:"
+                    append="forints"
+                    validation={true}
+                    rangeValidation={true}
+                    validationIndicator={false}
+                    initialValue={this.state.numberOfStudentsMax}
+                    initialValidity={this.state.numberOfStudentsMaxValid}
+                    integer={true}
+                    min={this.state.numberOfStudentsMin}
+                    max={64}
+                    onChange={(e) => this.NumberOfStudentsMaxUpdate(e)}
+                    width={InputWidth.third}
+                />
+            </div>
+            <div className="form-row row">
+                <CheckboxInput
+                    text="Allow to register for a single event"
+                    initialValue={this.state.allowSingle}
+                    onChange={(e) => this.AllowSingleUpdate(e)}
+                    width={InputWidth.seven}
+                />
+            </div>
+            <div className="form-row row">
+                <NumberInput
+                    prepend="Lesson Price:"
+                    append="forints"
+                    validation={true}
+                    rangeValidation={true}
+                    validationIndicator={false}
+                    initialValidity={false}
+                    min={0}
+                    max={10000}
+                    width={InputWidth.half}
+                    disabled={!this.state.allowSingle}
+                />
+                <SelectInput
+                    prepend="Single payment:"
+                    initialValidity={false}
+                    values={[
+                        new SelectValue("Before the lesson", "pre"),
+                        new SelectValue("After the lesson", "post"),
+                        new SelectValue("Any", "pre-post"),
+                        new SelectValue("Transaction before the lesson", "early")
+                    ]}
+                    width={InputWidth.half}
+                    disabled={!this.state.allowSingle}
+                />
+            </div>
+            <div className="form-row row">
+                <CheckboxInput
+                    text="Allow to register for a course of multiple events"
+                    initialValue={this.state.allowCourse}
+                    onChange={(e) => this.AllowCourseUpdate(e)}
+                    width={InputWidth.seven}
+                />
+            </div>
+            <div className="form-row row">
+                <NumberInput
+                    prepend="Course Price:"
+                    append="forints"
+                    validation={true}
+                    rangeValidation={true}
+                    validationIndicator={false}
+                    initialValidity={false}
+                    min={0}
+                    max={10000}
+                    width={InputWidth.half}
+                    disabled={!this.state.allowCourse}
+                />
+                <SelectInput
+                    prepend="Course payment:"
+                    initialValidity={false}
+                    values={[
+                        new SelectValue("Right before the first event", "first"),
+                        new SelectValue("on every lesson independently", "split"),
+                        new SelectValue("Transaction before the first event", "early")
+                    ]}
+                    width={InputWidth.half}
+                    disabled={!this.state.allowCourse}
+                />
+            </div>
+        </div>
+    }
+
     //   TEST/DEMO ****************************************
+
     HandleChange(e: InputEvent) {
-        if (e.valid) { 
+        if (e.valid) {
             console.log(e.value);
         }
     }
@@ -31,7 +243,8 @@ export class CourseEditor extends React.Component<RouteComponentProps<{}>, {}> {
         alert("you selected \" " + e.value + " \"")
     }
 
-    RenderDemo() {
+    RenderDemo() { return null }
+    NotTheRenderDemo() {
         return <div>
             <div className="form-row row">
                 <TextInput
@@ -53,7 +266,7 @@ export class CourseEditor extends React.Component<RouteComponentProps<{}>, {}> {
                     max={12}
                     width={InputWidth.half}
                     onFocus={(e) => this.HandleSelect(e)}
-                    />
+                />
             </div>
             <div className="form-row row">
                 <CheckboxInput
@@ -91,7 +304,7 @@ export class CourseEditor extends React.Component<RouteComponentProps<{}>, {}> {
                 />
             </div >
             <div className="form-row row">
-                <TextInput/>
+                <TextInput />
             </div >
             <div className="form-row row">
                 <NumberInput
@@ -172,64 +385,6 @@ export class CourseEditor extends React.Component<RouteComponentProps<{}>, {}> {
     }
 
     //   TEST/DEMO Ends ****************************************
-
-    render() {
-        return <div>{this.RenderDemo()}
-            <h1>Form; Version 1</h1>
-            <div className="form-row row">
-                <TextInput
-                    prepend="Name:"
-                    validation={true}
-                    lengthValidation={true}
-                    min={5}
-                    max={63}
-                    width={InputWidth.eight}
-                />
-                <SelectInput
-                    prepend="Type:"
-                    values={[
-                        new SelectValue("Single Lecture", "lecture"),
-                        new SelectValue("Course", "course"),
-                        new SelectValue("Practice", "Practice"),
-                        new SelectValue("Semenar", "semenar"),
-                    ]}
-                    width={InputWidth.four}
-                />
-            </div>
-            <div className="form-row row">
-                <NumberInput
-                    prepend="Lesson Price:"
-                    append="forints"
-                    validation={true}
-                    rangeValidation={true}
-                    validationIndicator={false}
-                    min={0}
-                    max={10000}
-                    width={InputWidth.four}
-                />
-                <NumberInput
-                    prepend="Course Price:"
-                    append="forints"
-                    validation={true}
-                    rangeValidation={true}
-                    validationIndicator={false}
-                    min={0}
-                    max={10000}
-                    width={InputWidth.four}
-                />
-                <SelectInput
-                    prepend="Payment:"
-                    values={[
-                        new SelectValue("Before the lesson", "pre"),
-                        new SelectValue("After the lesson", "post"),
-                        new SelectValue("Any", "pre-post"),
-                        new SelectValue("Transaction befor the lesson", "early")
-                    ]}
-                    width={InputWidth.four}
-                />
-            </div>
-        </div>
-    }
 }
 
 /*

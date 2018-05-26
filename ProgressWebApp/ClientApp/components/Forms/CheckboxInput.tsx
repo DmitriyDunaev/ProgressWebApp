@@ -12,7 +12,7 @@ interface CheckboxInputProps {
     correctValue?: boolean                              //value that is considered valid
     onChange?: (value: InputEvent) => void;             //event triggered when the content of the field changes
     className?: string                                  //HTML classes
-    width?: InputWidth
+    width?: InputWidth                                  //specify the width of the input
 }
 
 interface CheckboxInputState {

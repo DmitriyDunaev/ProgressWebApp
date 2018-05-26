@@ -20,10 +20,12 @@ interface SelectInputProps {
     append?: string;                                    //text after the field, if no validation (not rendered if empty and not validated)
     initialValueIndex?: number;                         //staring value
     changeIndicator?: boolean                           //will this field furn green after being touched?
+    initialValidity?: boolean;                          //determines initial validity
     onChange?: (value: InputEvent) => void;             //event triggered when the content of the field changes
     onFocus?: (value: InputEvent) => void;              //event triggered when field is selected
     className?: string                                  //HTML classes
-    width?: InputWidth        
+    width?: InputWidth                                  //specify the width of the input
+    disabled?: boolean                                  //disables the input and alteres styles
 }
 
 interface SelectInputState{
@@ -42,13 +44,15 @@ export class SelectInput extends React.Component<SelectInputProps, SelectInputSt
         changeIndicator: true,
         className: "",
         width: InputWidth.full,
+        disabled: false,
+        initialValidity: true
     };
 
     constructor(props: SelectInputProps) {
         super(props)
         this.state = {
             untouched: true,
-            valid: true,
+            valid: this.props.initialValidity != undefined && this.props.initialValidity,
         }
         if (this.props.initialValueIndex != undefined && this.props.values[this.props.initialValueIndex] != undefined) {
             this.value = this.props.values[this.props.initialValueIndex].value
@@ -73,12 +77,12 @@ export class SelectInput extends React.Component<SelectInputProps, SelectInputSt
 
     HandelClick(e: React.MouseEvent<HTMLSelectElement>) {
         if (this.state.untouched) {
-            this.setState({ untouched: false })
+            this.setState({ untouched: false, valid: true }) 
             if (this.props.onFocus != undefined) {
-                this.props.onFocus(new InputEvent(e.currentTarget.value, this.state.valid))
+                this.props.onFocus(new InputEvent(e.currentTarget.value, true))
             }
-            if (this.props.onChange != undefined && this.value != e.currentTarget.value) {
-                this.props.onChange(new InputEvent(e.currentTarget.value, this.state.valid))
+            if (this.props.onChange != undefined) {
+                this.props.onChange(new InputEvent(e.currentTarget.value, true))
             }
         }
     }
@@ -127,7 +131,7 @@ export class SelectInput extends React.Component<SelectInputProps, SelectInputSt
         if (this.props.className != undefined) {
             classes += this.props.className
         }
-        if (!this.state.untouched && this.props.changeIndicator) {
+        if (!this.state.untouched && this.props.changeIndicator && !this.props.disabled) {
             classes += " has-success "
         }
         var inputGroupString: string = ""
@@ -147,6 +151,7 @@ export class SelectInput extends React.Component<SelectInputProps, SelectInputSt
                     onChange={(e) => this.HandelChange(e)}
                     onClick={(e) => this.HandelClick(e)}
                     value={this.value}
+                    disabled={this.props.disabled}
                 >
                     {this.RenderOptions()}
                 </select>

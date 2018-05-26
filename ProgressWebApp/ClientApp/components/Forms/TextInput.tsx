@@ -22,6 +22,7 @@ interface TextInputProps {
     onBlur?: (value: InputEvent) => void;               //event triggered when field is deselected
     className?: string                                  //HTML classes
     width?: InputWidth                                  //specify the width of the input
+    disabled?: boolean                                  //disables the input and alteres styles
 };
 
 //Dynamic parameters (referenced by reder)
@@ -47,7 +48,9 @@ export class TextInput extends React.Component<TextInputProps, TextInputState> {
         max: 0,
         className: "",
         width: InputWidth.full,
+        disabled: false,
     };
+
 
     //Holds the copy of the input value for quick global acess
     private text: string = ""
@@ -181,14 +184,11 @@ export class TextInput extends React.Component<TextInputProps, TextInputState> {
         }
         else {
             var messages: string[] = []
-            switch (this.state.validLength) {
-                case LengthValidationFlags.TooShort:
-                    messages.push("There must be at least " + this.props.min + " characters.")
-                    break
-                case LengthValidationFlags.TooLong:
-                    messages.push("There could be at most " + this.props.max + " characters.")
-                    break
-            }
+            if (this.state.validLength == LengthValidationFlags.TooShort)
+                messages.push("There must be at least " + this.props.min + " characters.")
+
+            if (this.state.validLength == LengthValidationFlags.TooLong)
+                 messages.push("There could be at most " + this.props.max + " characters.")
             return messages.map((message) => <label className="control-label">{message}</label>)
         }
     }
@@ -205,7 +205,7 @@ export class TextInput extends React.Component<TextInputProps, TextInputState> {
         if (this.props.className != undefined) {
             classes += this.props.className
         }
-        if (!this.state.untouched && this.props.validation) {
+        if (!this.state.untouched && this.props.validation && !this.props.disabled) {
             if (this.state.valid) {
                 classes += " has-success "
             } else {
@@ -229,6 +229,7 @@ export class TextInput extends React.Component<TextInputProps, TextInputState> {
                     onChange={(e) => this.HandleChange(e)}
                     onFocus={(e) => this.HandleFocus(e)}
                     onBlur={(e) => this.HandleBlur(e)}
+                    disabled={this.props.disabled}
                 />
                 {this.RenderAppend()}
             </div>
