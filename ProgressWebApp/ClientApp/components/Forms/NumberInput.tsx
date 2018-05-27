@@ -1,7 +1,7 @@
 ﻿import * as React from 'react';
 import { InputEvent, InputWidth, GetInputWidthClass } from './InputInterfaces'
 
-enum RangeValidationFlags { "TooLow", "TooHigh", "valid" }//internal
+enum RangeValidationFlags { "TooLow", "TooHigh", "valid", "invalid" }//internal
 
 //Constant parameters
 interface NumberInputProps {
@@ -100,33 +100,46 @@ export class NumberInput extends React.Component<NumberInputProps, NumberInputSt
         if (this.props.onFocus != undefined) {
             this.props.onFocus(new InputEvent(this.value.toString(), this.state.valid))
         }
+        this.ValidityUpdate()
     }
 
     HandleBlur(e: React.FocusEvent<HTMLInputElement>) {
         if (this.props.onBlur != undefined) {
             this.props.onBlur(new InputEvent(this.value.toString(), this.state.valid))
         }
+        this.ValidityUpdate()
     }
 
     //Method for updating the value of "validLength", returns true if "validLength" == LengthValidationFlags.valid
-    IsLengthValid(): boolean {
-        var minV = this.props.min == undefined || this.props.min == 0 || this.value >= this.props.min
-        var maxV = this.props.max == undefined || this.props.max == 0 || this.value <= this.props.max
+    private IsLengthValid(): boolean {
+        var minV = this.props.min == undefined ||
+           // this.props.min == 0 ||
+            this.value >= this.props.min
+        var maxV = this.props.max == undefined ||
+            //this.props.max == 0 ||
+            this.value <= this.props.max
             || (this.props.min != undefined && this.props.max < this.props.min)
         if (minV) {
             if (maxV) {
                 this.setState({ validRange: RangeValidationFlags.valid })
+                console.log(this.props.prepend + " value: " + this.value + "; verdict: valid")
                 return true
             }
             this.setState({ validRange: RangeValidationFlags.TooHigh })
+            console.log(this.props.prepend + " value: " + this.value + "; verdict: TooHigh")
             return false
         }
-        this.setState({ validRange: RangeValidationFlags.TooLow })
+        if (maxV) {
+            this.setState({ validRange: RangeValidationFlags.TooLow })
+            console.log(this.props.prepend + " value: " + this.value + "; verdict: TooLow")
+            return false
+        }
+        this.setState({ validRange: RangeValidationFlags.invalid })
         return false
     }
 
     //Handels checking all conditions and updating the value of "valid", returns its value
-    ValidityUpdate(): boolean {
+    public ValidityUpdate(): boolean {
         if (this.props.validation) {
             var temp = true;
             if (this.props.rangeValidation) {
@@ -140,7 +153,7 @@ export class NumberInput extends React.Component<NumberInputProps, NumberInputSt
     }
 
     //Renders label if not empty (called by render)
-    RrenderLabel() {
+    private RrenderLabel() {
         if (this.props.label == "") {
             return null
         }
@@ -150,7 +163,7 @@ export class NumberInput extends React.Component<NumberInputProps, NumberInputSt
     };
 
     //Renders prepend if not empty (called by render)
-    RenderPrepend() {
+    private RenderPrepend() {
         if (this.props.prepend == "") {
             return null
         }
@@ -162,7 +175,7 @@ export class NumberInput extends React.Component<NumberInputProps, NumberInputSt
     }
 
     //Renders append if not empty or validation symbol, depending on setup (called by render)
-    RenderAppend() {
+    private  RenderAppend() {
         if (this.props.validation && this.props.validationIndicator) {
             if (this.state.untouched) {
                 return null
@@ -188,7 +201,7 @@ export class NumberInput extends React.Component<NumberInputProps, NumberInputSt
     }
 
     //Renders list of warnings that are dependant on statge flags (called by render)
-    RrenderWarnings() {
+    private RrenderWarnings() {
         if (!this.props.validation || this.state.valid || this.state.untouched) {
             return null
         }
@@ -198,6 +211,8 @@ export class NumberInput extends React.Component<NumberInputProps, NumberInputSt
                 messages.push("The value must be " + this.props.min + " or above.")
             if (this.state.validRange == RangeValidationFlags.TooHigh)
                 messages.push("Ther value must be " + this.props.max + " or below.")
+            if (this.state.validRange == RangeValidationFlags.invalid)
+                messages.push("The value is invalid.")
             return messages.map((message) => <label className="control-label">{message}</label>)
         }
     }

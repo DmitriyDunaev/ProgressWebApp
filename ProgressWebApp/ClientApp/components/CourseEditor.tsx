@@ -8,71 +8,81 @@ import { CheckboxInput } from './Forms/CheckboxInput';
 
 //Dynamic parameters (referenced by reder)
 interface CourseEditorState {
-    name: string;
     nameValid: boolean;
-    type: string;
     typeValid: boolean;
-    room: string;
-    address: string;
-    numberOfStudentsMin: number;
     numberOfStudentsMinValid: boolean;
-    numberOfStudentsMax: number;
     numberOfStudentsMaxValid: boolean;
     allowSingle: boolean;
     allowCourse: boolean;
-    priceSingle: number;
     priceSingleValid: boolean;
-    priceCourse: number;
     priceCourseValid: boolean;
-    paymentMethodSingle: string;
-    paymentMethodCourse: string;
-    courseLength: number;
     courseLengthValid: boolean;
     //materials: string[];                 
     //information: string;
     //pageContent: string;    
 }
 
+const NUMBER_OF_STUDENTS_MIN = 1;
+const NUMBER_OF_STUDENTS_MAX = 64;
+
 export class CourseEditor extends React.Component<RouteComponentProps<{}>, CourseEditorState> {
 
     constructor() {
         super()
         this.state = {
-            name: "",
             nameValid: false,
-            type: "",
             typeValid: false,
-            room: "",
-            address: "",
-            numberOfStudentsMin: 1,
             numberOfStudentsMinValid: true,
-            numberOfStudentsMax: 1,
             numberOfStudentsMaxValid: true,
             allowSingle: true,
             allowCourse: false,
-            priceSingle: 0,
             priceSingleValid: false,
-            priceCourse: 0,
             priceCourseValid: false,
-            paymentMethodSingle: "",
-            paymentMethodCourse: "",
-            courseLength: 4,
             courseLengthValid: true
         }
     }
 
+    numberOfStudentsMinRef: NumberInput | null
+    numberOfStudentsMaxRef: NumberInput | null
+
+    numberOfStudentsMin = NUMBER_OF_STUDENTS_MIN
+    numberOfStudentsMax = NUMBER_OF_STUDENTS_MAX
+
     NumberOfStudentsMinUpdate(e: InputEvent) {
-        this.setState({
-            numberOfStudentsMin: parseInt(e.value),
-            numberOfStudentsMinValid: e.valid,
-        });
+        if (e.value != "") { 
+            if (parseInt(e.value) < NUMBER_OF_STUDENTS_MIN) {
+                this.numberOfStudentsMin = NUMBER_OF_STUDENTS_MIN
+            } else {
+                this.numberOfStudentsMin = parseInt(e.value)
+            }
+            this.setState({
+                numberOfStudentsMinValid: e.valid,
+            })
+            this.NumberOfStudentsUniversalUpdate()
+        }
     }
 
     NumberOfStudentsMaxUpdate(e: InputEvent) {
-        this.setState({
-            numberOfStudentsMax: parseInt(e.value),
-            numberOfStudentsMaxValid: e.valid,
-        });
+        if (e.value != "") {
+            if (parseInt(e.value) > NUMBER_OF_STUDENTS_MAX) {
+                this.numberOfStudentsMax = NUMBER_OF_STUDENTS_MAX
+            } else {
+                this.numberOfStudentsMax = parseInt(e.value)
+            }
+            this.setState({
+                numberOfStudentsMaxValid: e.valid,
+            })
+            this.NumberOfStudentsUniversalUpdate()
+        }
+    }
+
+    NumberOfStudentsUniversalUpdate() {
+       if (this.numberOfStudentsMaxRef != null) {
+            this.numberOfStudentsMaxRef.ValidityUpdate()
+        }
+        if (this.numberOfStudentsMinRef != null) {
+            this.numberOfStudentsMinRef.ValidityUpdate()
+        }
     }
 
     AllowSingleUpdate(e: InputEvent) {
@@ -126,12 +136,15 @@ export class CourseEditor extends React.Component<RouteComponentProps<{}>, Cours
                     validation={true}
                     rangeValidation={true}
                     validationIndicator={false}
-                    initialValue={this.state.numberOfStudentsMin}
-                    initialValidity={this.state.numberOfStudentsMinValid}
+                    initialValue={1}
+                    initialValidity={true}
                     integer={true}
-                    min={1}
-                    max={this.state.numberOfStudentsMax}
+                    min={NUMBER_OF_STUDENTS_MIN}
+                    max={this.numberOfStudentsMax}
                     onChange={(e) => this.NumberOfStudentsMinUpdate(e)}
+                    onBlur={(e) => this.NumberOfStudentsUniversalUpdate()}
+                    onFocus={(e) => this.NumberOfStudentsUniversalUpdate()}
+                    ref={instance => { this.numberOfStudentsMinRef = instance; }} 
                     width={InputWidth.third}
                 />
                 <NumberInput
@@ -140,12 +153,15 @@ export class CourseEditor extends React.Component<RouteComponentProps<{}>, Cours
                     validation={true}
                     rangeValidation={true}
                     validationIndicator={false}
-                    initialValue={this.state.numberOfStudentsMax}
-                    initialValidity={this.state.numberOfStudentsMaxValid}
+                    initialValue={1}
+                    initialValidity={true}
                     integer={true}
-                    min={this.state.numberOfStudentsMin}
-                    max={64}
+                    min={this.numberOfStudentsMin}
+                    max={NUMBER_OF_STUDENTS_MAX}
                     onChange={(e) => this.NumberOfStudentsMaxUpdate(e)}
+                    onBlur={(e) => this.NumberOfStudentsUniversalUpdate()}
+                    onFocus={(e) => this.NumberOfStudentsUniversalUpdate()}
+                    ref={instance => { this.numberOfStudentsMaxRef = instance; }} 
                     width={InputWidth.third}
                 />
             </div>
