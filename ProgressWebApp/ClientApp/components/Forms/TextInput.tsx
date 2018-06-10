@@ -186,10 +186,9 @@ export class TextInput extends React.Component<TextInputProps, TextInputState> {
             var messages: string[] = []
             if (this.state.validLength == LengthValidationFlags.TooShort)
                 messages.push("There must be at least " + this.props.min + " characters.")
-
             if (this.state.validLength == LengthValidationFlags.TooLong)
                  messages.push("There could be at most " + this.props.max + " characters.")
-            return messages.map((message) => <label className="control-label">{message}</label>)
+            return messages.map((message) => <div><label className="control-label">{message}</label></div>)
         }
     }
 

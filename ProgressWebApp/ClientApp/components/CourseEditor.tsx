@@ -5,6 +5,7 @@ import { NumberInput } from './Forms/NumberInput';
 import { SelectInput, SelectType, SelectValue } from './Forms/SelectInput';
 import { InputEvent, InputWidth } from './Forms/InputInterfaces';
 import { CheckboxInput } from './Forms/CheckboxInput';
+import { NumberRangeInput, LocalNumberInput} from './Forms/NumberRangeInput';
 
 //Dynamic parameters (referenced by reder)
 interface CourseEditorState {
@@ -48,43 +49,6 @@ export class CourseEditor extends React.Component<RouteComponentProps<{}>, Cours
     numberOfStudentsMin = NUMBER_OF_STUDENTS_MIN
     numberOfStudentsMax = NUMBER_OF_STUDENTS_MAX
 
-    NumberOfStudentsMinUpdate(e: InputEvent) {
-        if (e.value != "") { 
-            if (parseInt(e.value) < NUMBER_OF_STUDENTS_MIN) {
-                this.numberOfStudentsMin = NUMBER_OF_STUDENTS_MIN
-            } else {
-                this.numberOfStudentsMin = parseInt(e.value)
-            }
-            this.setState({
-                numberOfStudentsMinValid: e.valid,
-            })
-            this.NumberOfStudentsUniversalUpdate()
-        }
-    }
-
-    NumberOfStudentsMaxUpdate(e: InputEvent) {
-        if (e.value != "") {
-            if (parseInt(e.value) > NUMBER_OF_STUDENTS_MAX) {
-                this.numberOfStudentsMax = NUMBER_OF_STUDENTS_MAX
-            } else {
-                this.numberOfStudentsMax = parseInt(e.value)
-            }
-            this.setState({
-                numberOfStudentsMaxValid: e.valid,
-            })
-            this.NumberOfStudentsUniversalUpdate()
-        }
-    }
-
-    NumberOfStudentsUniversalUpdate() {
-       if (this.numberOfStudentsMaxRef != null) {
-            this.numberOfStudentsMaxRef.ValidityUpdate()
-        }
-        if (this.numberOfStudentsMinRef != null) {
-            this.numberOfStudentsMinRef.ValidityUpdate()
-        }
-    }
-
     AllowSingleUpdate(e: InputEvent) {
         this.setState({
             allowSingle: e.value == 'true',
@@ -122,49 +86,23 @@ export class CourseEditor extends React.Component<RouteComponentProps<{}>, Cours
                     width={InputWidth.half}
                 />
             </div>
-            <div className="form-row row">
-                <div className="form-group col-lg-4">
-                    <div>
-                        <div className="form-control" style={{ backgroundColor: "#eeeeee" }}>
-                            < span className="input-group-text control-label" >Number of students on a given evnt</span >
-                        </div>
-                    </div>
-                </div>
-                <NumberInput
-                    prepend="Minimum:"
-                    append="forints"
-                    validation={true}
-                    rangeValidation={true}
-                    validationIndicator={false}
-                    initialValue={1}
-                    initialValidity={true}
-                    integer={true}
-                    min={NUMBER_OF_STUDENTS_MIN}
-                    max={this.numberOfStudentsMax}
-                    onChange={(e) => this.NumberOfStudentsMinUpdate(e)}
-                    onBlur={(e) => this.NumberOfStudentsUniversalUpdate()}
-                    onFocus={(e) => this.NumberOfStudentsUniversalUpdate()}
-                    ref={instance => { this.numberOfStudentsMinRef = instance; }} 
-                    width={InputWidth.third}
-                />
-                <NumberInput
-                    prepend="Maximum:"
-                    append="forints"
-                    validation={true}
-                    rangeValidation={true}
-                    validationIndicator={false}
-                    initialValue={1}
-                    initialValidity={true}
-                    integer={true}
-                    min={this.numberOfStudentsMin}
-                    max={NUMBER_OF_STUDENTS_MAX}
-                    onChange={(e) => this.NumberOfStudentsMaxUpdate(e)}
-                    onBlur={(e) => this.NumberOfStudentsUniversalUpdate()}
-                    onFocus={(e) => this.NumberOfStudentsUniversalUpdate()}
-                    ref={instance => { this.numberOfStudentsMaxRef = instance; }} 
-                    width={InputWidth.third}
-                />
-            </div>
+            <NumberRangeInput
+                description="Number of students on a given evnt"
+                upper={{
+                    prepend: "Minimum:",
+                    initialValue: 1,
+                }}
+                lower={{
+                    prepend: "Maximum:",
+                    initialValue: 1,
+                }}
+                initialValidity={true}
+                min={NUMBER_OF_STUDENTS_MIN}
+                max={NUMBER_OF_STUDENTS_MAX}
+                integer={true}
+                validation={true}
+                rangeValidation={true}
+            />
             <div className="form-row row">
                 <CheckboxInput
                     text="Allow to register for a single event"

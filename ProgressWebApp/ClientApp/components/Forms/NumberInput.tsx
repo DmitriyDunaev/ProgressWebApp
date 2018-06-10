@@ -111,7 +111,7 @@ export class NumberInput extends React.Component<NumberInputProps, NumberInputSt
     }
 
     //Method for updating the value of "validLength", returns true if "validLength" == LengthValidationFlags.valid
-    private IsLengthValid(): boolean {
+    private IsNumberValid(): boolean {
         var minV = this.props.min == undefined ||
            // this.props.min == 0 ||
             this.value >= this.props.min
@@ -122,16 +122,13 @@ export class NumberInput extends React.Component<NumberInputProps, NumberInputSt
         if (minV) {
             if (maxV) {
                 this.setState({ validRange: RangeValidationFlags.valid })
-                console.log(this.props.prepend + " value: " + this.value + "; verdict: valid")
                 return true
             }
             this.setState({ validRange: RangeValidationFlags.TooHigh })
-            console.log(this.props.prepend + " value: " + this.value + "; verdict: TooHigh")
             return false
         }
         if (maxV) {
             this.setState({ validRange: RangeValidationFlags.TooLow })
-            console.log(this.props.prepend + " value: " + this.value + "; verdict: TooLow")
             return false
         }
         this.setState({ validRange: RangeValidationFlags.invalid })
@@ -143,7 +140,7 @@ export class NumberInput extends React.Component<NumberInputProps, NumberInputSt
         if (this.props.validation) {
             var temp = true;
             if (this.props.rangeValidation) {
-                temp = temp && this.IsLengthValid()
+                temp = temp && this.IsNumberValid()
             }
             this.setState({ valid: temp })
             return temp
@@ -210,10 +207,10 @@ export class NumberInput extends React.Component<NumberInputProps, NumberInputSt
             if (this.state.validRange == RangeValidationFlags.TooLow)
                 messages.push("The value must be " + this.props.min + " or above.")
             if (this.state.validRange == RangeValidationFlags.TooHigh)
-                messages.push("Ther value must be " + this.props.max + " or below.")
+                messages.push("The value must be " + this.props.max + " or below.")
             if (this.state.validRange == RangeValidationFlags.invalid)
                 messages.push("The value is invalid.")
-            return messages.map((message) => <label className="control-label">{message}</label>)
+            return messages.map((message) => <div><label className="control-label">{message}</label></div>)
         }
     }
 
