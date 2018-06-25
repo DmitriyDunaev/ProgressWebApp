@@ -66,6 +66,31 @@ export class CourseEditor extends React.Component<RouteComponentProps<{}>, Cours
             <h1>Form; Version 1</h1>
             <div className="form-row row">
                 <TextInput
+                    prepend="Email:"
+                    placeholder="  Demo"
+                    validation={true}
+                    lengthValidation={true}
+                    initialValidity={false}
+                    emailValidation={true}
+                    min={5}
+                    max={62}
+                    width={InputWidth.half}
+                />
+                <TextInput
+                    prepend="Password:"
+                    placeholder="  Demo"
+                    validation={true}
+                    lengthValidation={true}
+                    initialValidity={false}
+                    password={true}
+                    oneWordValidation={true}
+                    min={5}
+                    max={62}
+                    width={InputWidth.half}
+                />
+            </div>
+            <div className="form-row row">
+                <TextInput
                     prepend="Name:"
                     validation={true}
                     lengthValidation={true}

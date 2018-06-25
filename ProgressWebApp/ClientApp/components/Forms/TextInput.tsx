@@ -1,7 +1,8 @@
 ﻿import * as React from 'react';
 import { InputEvent, InputWidth, GetInputWidthClass } from './InputInterfaces'
 
-enum LengthValidationFlags { "TooShort", "TooLong", "valid" }//internal
+enum LengthValidationFlags { "TooShort", "TooLong", "valid", "invalid" }//internal
+enum EMailValidationFlags { "NoAt", "ForbiddenSymbol", "InvalidHost", "valid", "invalid" }//internal
 
 //Constant parameters
 interface TextInputProps {
@@ -16,11 +17,15 @@ interface TextInputProps {
     lengthValidation?: boolean                          //turns on length validation (irrelevant if "validation" == false)
     min?: number;                                       //minimum number of characters (length validation condition) (ignored if 0)
     max?: number;                                       //minimum number of characters (length validation condition) (ignored if 0)
+    oneWordValidation?: boolean;                        //activates field validation for not containing ' '
+    emailValidation?: boolean;                          //activates field validation for email
+    warningsVal?: boolean;                              //enables warnings in general (WIP)
     onChange?: (value: InputEvent) => void;             //event triggered when the content of the field changes
     onValidityChange?: (value: InputEvent) => void;     //event triggered when validity changes
     onFocus?: (value: InputEvent) => void;              //event triggered when field is selected
     onBlur?: (value: InputEvent) => void;               //event triggered when field is deselected
     className?: string                                  //HTML classes
+    password?: boolean                                   //
     width?: InputWidth                                  //specify the width of the input
     disabled?: boolean                                  //disables the input and alteres styles
 };
@@ -29,6 +34,8 @@ interface TextInputProps {
 interface TextInputState {
     untouched: boolean;                                 //true until first onChange event
     validLength: LengthValidationFlags;                 //describes if the content satisfy the length restrictions { "TooShort", "TooLong", "valid" }
+    validOneWord: boolean;                              //describes if the content satisfy the condition of being one word.
+    validEmail: EMailValidationFlags;                   //describes if the content satisfy could be a valid email
     valid: boolean;                                     //true if all conditions are satisfied
 }
 
@@ -46,6 +53,10 @@ export class TextInput extends React.Component<TextInputProps, TextInputState> {
         lengthValidation: false,
         min: 0,
         max: 0,
+        oneWordValidation: false,
+        emailValidation: false,
+        warningsVal: true,
+        password: false,
         className: "",
         width: InputWidth.full,
         disabled: false,
@@ -63,7 +74,9 @@ export class TextInput extends React.Component<TextInputProps, TextInputState> {
         }
         this.state = {
             untouched: true,
-            validLength: LengthValidationFlags.valid,
+            validLength: LengthValidationFlags.invalid,
+            validOneWord: true,
+            validEmail: EMailValidationFlags.invalid,
             valid: !this.props.validation || (this.props.initialValidity != undefined && this.props.initialValidity),
         };
     }
@@ -115,12 +128,53 @@ export class TextInput extends React.Component<TextInputProps, TextInputState> {
         return false
     }
 
+    IsOneWord() {
+        var temp = this.text.search(' ') == -1
+        this.setState({ validOneWord: temp })
+        return temp
+    }
+
+    IsEmail() {
+        if (this.IsOneWord()) {
+            if (this.text.indexOf('@') != -1) {
+                var strings = this.text.split('@')
+                if (strings.length == 2) {
+                    if (strings[1].indexOf('.') > 0 && strings[1].indexOf('.') < (strings[1].length-1)) {
+                        this.setState({ validEmail: EMailValidationFlags.valid })
+                        return true
+                    }
+                    else {
+                        this.setState({ validEmail: EMailValidationFlags.InvalidHost })
+                        return false
+                    }
+                }
+                this.setState({ validEmail: EMailValidationFlags.ForbiddenSymbol })
+                return false
+            }
+            else {
+                this.setState({ validEmail: EMailValidationFlags.NoAt })
+                return false
+            }
+        }
+        else {
+            console.log("!")
+            this.setState({ validEmail: EMailValidationFlags.ForbiddenSymbol })
+            return false
+        }
+    }
+
     //Handels checking all conditions and updating the value of "valid", returns its value
     ValidityUpdate(): boolean {
         if (this.props.validation) {
             var temp = true;
             if (this.props.lengthValidation) {
                 temp = temp && this.IsLengthValid()
+            }
+            if (this.props.oneWordValidation) {
+                temp = temp && this.IsOneWord()
+            }
+            if (this.props.emailValidation && !this.props.password) {
+                temp = temp && this.IsEmail()
             }
             this.setState({ valid: temp })
             return temp
@@ -187,7 +241,15 @@ export class TextInput extends React.Component<TextInputProps, TextInputState> {
             if (this.state.validLength == LengthValidationFlags.TooShort)
                 messages.push("There must be at least " + this.props.min + " characters.")
             if (this.state.validLength == LengthValidationFlags.TooLong)
-                 messages.push("There could be at most " + this.props.max + " characters.")
+                messages.push("There could be at most " + this.props.max + " characters.")
+            if (!this.state.validOneWord && this.props.oneWordValidation)
+                messages.push("This field should contain a single word")
+            if (this.state.validEmail == EMailValidationFlags.ForbiddenSymbol)
+                messages.push("There is an invalid symbol in the adress")
+            if (this.state.validEmail == EMailValidationFlags.NoAt)
+                messages.push("The '@' is missing")
+            if (this.state.validEmail == EMailValidationFlags.InvalidHost)
+                messages.push("There is an invalid host name (text after '@')")
             return messages.map((message) => <div><label className="control-label">{message}</label></div>)
         }
     }
@@ -195,6 +257,14 @@ export class TextInput extends React.Component<TextInputProps, TextInputState> {
     render() {
         var classes: string = ""
         var inputGroupString: string = ""
+        var type: string = "text"
+        if (this.props.password) {
+            type = "password"
+        } else {
+            if (this.props.emailValidation) {
+                type = "email"
+            }
+        }
         if (!(this.props.prepend == "" && (
             (this.props.append == "" && !this.props.validation) ||
             (this.props.append == "" && this.props.validation && !this.props.validationIndicator) ||
@@ -218,7 +288,7 @@ export class TextInput extends React.Component<TextInputProps, TextInputState> {
             {this.RrenderLabel()}
             <div className={inputGroupString}>
                 {this.RenderPrepend()}
-                <input type="text"
+                <input type={type}
                     className="form-control"
                     style={{ zIndex: 0 }}
                     spellCheck={true}
