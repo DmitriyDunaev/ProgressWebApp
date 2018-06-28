@@ -71,7 +71,8 @@ export class NumberRangeInput extends React.Component<NumberRangeInputProps, Num
     //Initial state values
     constructor(props: NumberRangeInputProps) {
         super(props)
-        if (this.props.upper.initialValue != undefined && (this.props.min == undefined || this.props.upper.initialValue <= this.props.min)) {
+        if (this.props.upper.initialValue != undefined && (this.props.max == undefined || this.props.upper.initialValue <= this.props.max)
+            && (this.props.min == undefined || this.props.upper.initialValue >= this.props.min)) {
             this.valueUpper = this.props.upper.initialValue
         }
         else {
@@ -79,7 +80,8 @@ export class NumberRangeInput extends React.Component<NumberRangeInputProps, Num
                 this.valueUpper = this.props.max
             }
         }
-        if (this.props.lower.initialValue != undefined && (this.props.min == undefined || this.props.lower.initialValue <= this.props.min)) {
+        if (this.props.lower.initialValue != undefined && (this.props.max == undefined || this.props.lower.initialValue <= this.props.max)
+            && (this.props.min == undefined || this.props.lower.initialValue >= this.props.min)) {
             this.valueLower = this.props.lower.initialValue
         }
         else {

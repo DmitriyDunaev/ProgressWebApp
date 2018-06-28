@@ -91,6 +91,31 @@ export class CourseEditor extends React.Component<RouteComponentProps<{}>, Cours
             </div>
             <div className="form-row row">
                 <TextInput
+                    prepend="Textaarea:"
+                    placeholder="  Demo"
+                    validation={true}
+                    lengthValidation={true}
+                    initialValidity={false}
+                    textArea={true}
+                    min={5}
+                    max={62}
+                    width={InputWidth.half}
+                />
+                <TextInput
+                    prepend="Second One:"
+                    placeholder="  Demo"
+                    validation={true}
+                    lengthValidation={true}
+                    initialValidity={false}
+                    textArea={true}
+                    min={5}
+                    max={62}
+                    width={InputWidth.half}
+                    disabled={true}
+                />
+            </div>
+            <div className="form-row row">
+                <TextInput
                     prepend="Name:"
                     validation={true}
                     lengthValidation={true}
@@ -114,11 +139,11 @@ export class CourseEditor extends React.Component<RouteComponentProps<{}>, Cours
             <NumberRangeInput
                 description="Number of students on a given evnt"
                 upper={{
-                    prepend: "Minimum:",
+                    prepend: "Maximum:",
                     initialValue: 1,
                 }}
                 lower={{
-                    prepend: "Maximum:",
+                    prepend: "Minimum:",
                     initialValue: 1,
                 }}
                 initialValidity={true}
@@ -133,7 +158,7 @@ export class CourseEditor extends React.Component<RouteComponentProps<{}>, Cours
                     text="Allow to register for a single event"
                     initialValue={this.state.allowSingle}
                     onChange={(e) => this.AllowSingleUpdate(e)}
-                    width={InputWidth.seven}
+                    width={InputWidth.full}
                 />
             </div>
             <div className="form-row row">
@@ -167,7 +192,21 @@ export class CourseEditor extends React.Component<RouteComponentProps<{}>, Cours
                     text="Allow to register for a course of multiple events"
                     initialValue={this.state.allowCourse}
                     onChange={(e) => this.AllowCourseUpdate(e)}
-                    width={InputWidth.seven}
+                    width={InputWidth.half}
+                />
+                <NumberInput
+                    prepend="Course Length:"
+                    append="lessons"
+                    initialValue={6}
+                    validation={true}
+                    rangeValidation={true}
+                    integer={true}
+                    min={2}
+                    max={127}
+                    initialValidity={true}
+                    width={InputWidth.half}
+                    validationIndicator={false}
+                    disabled={!this.state.allowCourse}
                 />
             </div>
             <div className="form-row row">
@@ -370,19 +409,19 @@ export class CourseEditor extends React.Component<RouteComponentProps<{}>, Cours
 
 export class Course {
     id: string;                                 ----
-    logo: string;//link
+    logo: string;//link                         ----
     teacherId: string;                          ----
     name: string;                               done
     type: undefined; //enum                     done
     payment: undefined; //enum                  done
-    room: string;
-    address: string;
-    numberOfStudentsMin: number;
-    numberOfStudentsMax: number;
+    room: string;                               format?
+    address: string;                            format?
+    numberOfStudentsMin: number;                done
+    numberOfStudentsMax: number;                done
     priceSingle: number;                        done
-    priceCourse: number;                        ????
-    courseLength: number;                       
-    materials: string[];//link                  
-    information: string;                        
-    pageContent: string;                       
+    priceCourse: number;                        done
+    courseLength: number;                       done
+    materials: string[];//link                  ????
+    information: string;                        ????
+    pageContent: string;                        ????
 }*/

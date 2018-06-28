@@ -59,7 +59,8 @@ export class NumberInput extends React.Component<NumberInputProps, NumberInputSt
     //Initial state values
     constructor(props: NumberInputProps) {
         super(props)
-        if (this.props.initialValue != undefined && (this.props.min == undefined || this.props.initialValue <= this.props.min)) {
+        if (this.props.initialValue != undefined && (this.props.max == undefined || this.props.initialValue <= this.props.max)
+            && (this.props.min == undefined || this.props.initialValue >= this.props.min)) {
             this.value = this.props.initialValue
         }
         else {

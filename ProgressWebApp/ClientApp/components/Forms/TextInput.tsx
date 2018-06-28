@@ -24,10 +24,12 @@ interface TextInputProps {
     onValidityChange?: (value: InputEvent) => void;     //event triggered when validity changes
     onFocus?: (value: InputEvent) => void;              //event triggered when field is selected
     onBlur?: (value: InputEvent) => void;               //event triggered when field is deselected
-    className?: string                                  //HTML classes
-    password?: boolean                                   //
-    width?: InputWidth                                  //specify the width of the input
-    disabled?: boolean                                  //disables the input and alteres styles
+    className?: string;                                  //HTML classes
+    password?: boolean;                                  //hide the input as circles
+    width?: InputWidth;                                  //specify the width of the input
+    disabled?: boolean;                                  //disables the input and alteres styles
+    textArea?: boolean;
+    textAreaRows?: number;
 };
 
 //Dynamic parameters (referenced by reder)
@@ -60,6 +62,8 @@ export class TextInput extends React.Component<TextInputProps, TextInputState> {
         className: "",
         width: InputWidth.full,
         disabled: false,
+        textArea: false,
+        textAreaRows: 3,
     };
 
 
@@ -99,13 +103,31 @@ export class TextInput extends React.Component<TextInputProps, TextInputState> {
         }
     }
 
-    HandleFocus(e: React.FocusEvent<HTMLInputElement>) {
+    //onChange Handeler for text area, also generates events that can be handeled outside
+    HandleChangeTextArea(e: React.ChangeEvent<HTMLTextAreaElement>) {
+        this.text = e.target.value
+        var temp = this.ValidityUpdate()
+        if (this.props.onChange != undefined) {
+            this.props.onChange(new InputEvent(this.text, temp))
+        }
+        if (this.state.valid != temp && this.props.onValidityChange != undefined) {
+            this.props.onValidityChange(new InputEvent(this.text, temp))
+        }
+        if (this.state.untouched) {
+            this.setState({ untouched: false })
+        }
+        if (!this.props.validation) {
+            this.forceUpdate()
+        }
+    }
+
+    HandleFocus() {
         if (this.props.onFocus != undefined) {
             this.props.onFocus(new InputEvent(this.text, this.state.valid))
         }
     }
 
-    HandleBlur(e: React.FocusEvent<HTMLInputElement>) {
+    HandleBlur() {
         if (this.props.onBlur != undefined) {
             this.props.onBlur(new InputEvent(this.text, this.state.valid))
         }
@@ -254,17 +276,49 @@ export class TextInput extends React.Component<TextInputProps, TextInputState> {
         }
     }
 
+    RenderInputGroup() {
+        if (!this.props.textArea) { 
+            var type: string = "text"
+            if (this.props.password) {
+                type = "password"
+            } else {
+                if (this.props.emailValidation) {
+                    type = "email"
+                }
+            }
+            return <input type={type}
+                className="form-control"
+                style={{ zIndex: 0 }}
+                spellCheck={true}
+                aria-label={this.props.label}
+                value={this.text}
+                placeholder={this.props.placeholder}
+                onChange={(e) => this.HandleChange(e)}
+                onFocus={(e) => this.HandleFocus()}
+                onBlur={(e) => this.HandleBlur()}
+                disabled={this.props.disabled}
+            />
+        }
+        else {
+            return <textarea
+                className="form-control"
+                style={{ zIndex: 0 }}
+                spellCheck={true}
+                aria-label={this.props.label}
+                value={this.text}
+                placeholder={this.props.placeholder}
+                onChange={(e) => this.HandleChangeTextArea(e)}
+                onFocus={(e) => this.HandleFocus()}
+                onBlur={(e) => this.HandleBlur()}
+                disabled={this.props.disabled}
+                rows={this.props.textAreaRows} 
+            />
+        }
+    }
+
     render() {
         var classes: string = ""
         var inputGroupString: string = ""
-        var type: string = "text"
-        if (this.props.password) {
-            type = "password"
-        } else {
-            if (this.props.emailValidation) {
-                type = "email"
-            }
-        }
         if (!(this.props.prepend == "" && (
             (this.props.append == "" && !this.props.validation) ||
             (this.props.append == "" && this.props.validation && !this.props.validationIndicator) ||
@@ -288,18 +342,7 @@ export class TextInput extends React.Component<TextInputProps, TextInputState> {
             {this.RrenderLabel()}
             <div className={inputGroupString}>
                 {this.RenderPrepend()}
-                <input type={type}
-                    className="form-control"
-                    style={{ zIndex: 0 }}
-                    spellCheck={true}
-                    aria-label={this.props.label}
-                    value={this.text}
-                    placeholder={this.props.placeholder}
-                    onChange={(e) => this.HandleChange(e)}
-                    onFocus={(e) => this.HandleFocus(e)}
-                    onBlur={(e) => this.HandleBlur(e)}
-                    disabled={this.props.disabled}
-                />
+                {this.RenderInputGroup()}
                 {this.RenderAppend()}
             </div>
             {this.RrenderWarnings()}
