@@ -6,25 +6,56 @@ import { SelectInput, SelectType, SelectValue } from './Forms/SelectInput';
 import { InputEvent, InputWidth } from './Forms/InputInterfaces';
 import { CheckboxInput } from './Forms/CheckboxInput';
 import { NumberRangeInput, LocalNumberInput} from './Forms/NumberRangeInput';
+import { Course } from 'ClientApp/components/DataController';
 
 //Dynamic parameters (referenced by reder)
 interface CourseEditorState {
     nameValid: boolean;
     typeValid: boolean;
-    numberOfStudentsMinValid: boolean;
-    numberOfStudentsMaxValid: boolean;
+    numberOfStudentsValid: boolean;
     allowSingle: boolean;
     allowCourse: boolean;
+    paymentSingleValid: boolean;
+    paymentCourseValid: boolean;
     priceSingleValid: boolean;
     priceCourseValid: boolean;
     courseLengthValid: boolean;
-    //materials: string[];                 
-    //information: string;
+    descriptionValid: boolean;
+    //materials: string[];    
     //pageContent: string;    
+}
+
+class CourseForm {
+    private teacherId: string; 
+    public name: string; 
+    public type: string; 
+    public paymentSingle: string;
+    public paymentCourse: string;
+    public allowSingle: boolean;
+    public allowCourse: boolean;
+    public numberOfStudentsMin : number; 
+    public numberOfStudentsMax : number; 
+    public priceSingle: number;
+    public priceCourse: number; 
+    public courseLength: number;
+    public description: string; 
+
+    constructor(
+        teacherId: string,
+    ) {
+        this.teacherId = teacherId
+    }
 }
 
 const NUMBER_OF_STUDENTS_MIN = 1;
 const NUMBER_OF_STUDENTS_MAX = 64;
+const NUMBER_OF_COURSE_LESSONS_MIN = 3;
+const NUMBER_OF_COURSE_LESSONS_MAX = 12;
+const NAME_LENGTH_MAX = 100
+const NAME_LENGTH_MIN = 3
+const COST_MIN = 0
+const COST_MAX = 10000
+const DESC_CHAR_MAX_COUNT = 2047
 
 export class CourseEditor extends React.Component<RouteComponentProps<{}>, CourseEditorState> {
 
@@ -33,100 +64,141 @@ export class CourseEditor extends React.Component<RouteComponentProps<{}>, Cours
         this.state = {
             nameValid: false,
             typeValid: false,
-            numberOfStudentsMinValid: true,
-            numberOfStudentsMaxValid: true,
+            numberOfStudentsValid: true,
             allowSingle: true,
             allowCourse: false,
+            paymentSingleValid: true,
+            paymentCourseValid: true,
             priceSingleValid: false,
             priceCourseValid: false,
-            courseLengthValid: true
+            courseLengthValid: true,
+            descriptionValid: true,
         }
+        this.course = new CourseForm("teacherID")
+        this.course.allowSingle = true
+        this.course.allowCourse = false
+        this.course.numberOfStudentsMin = 1
+        this.course.numberOfStudentsMax = 1
+        this.course.courseLength = 4
+        this.course.description = ""
     }
 
-    numberOfStudentsMinRef: NumberInput | null
-    numberOfStudentsMaxRef: NumberInput | null
+    private course: CourseForm
 
-    numberOfStudentsMin = NUMBER_OF_STUDENTS_MIN
-    numberOfStudentsMax = NUMBER_OF_STUDENTS_MAX
-
-    AllowSingleUpdate(e: InputEvent) {
+    NameUpdate(e: InputEvent) {
+        this.course.name = e.value
         this.setState({
-            allowSingle: e.value == 'true',
-        });
+            nameValid: e.valid
+        })
+    }
+
+    TypeUpdate(e: InputEvent) {
+        this.course.type = e.value
+        this.setState({
+            typeValid: e.valid //always true
+        })
+    }
+
+    NumberOfStudentsMinUpdate(e: InputEvent) {
+        this.course.numberOfStudentsMin = parseInt(e.value)
+        this.setState({
+            numberOfStudentsValid: e.valid 
+        })
+    }
+
+    NumberOfStudentsMaxUpdate(e: InputEvent) {
+        this.course.numberOfStudentsMax = parseInt(e.value)
+        this.setState({
+            numberOfStudentsValid: e.valid 
+        })
+    }
+    
+    AllowSingleUpdate(e: InputEvent) {
+        this.course.allowSingle = e.value == 'true'
+        this.setState({
+            allowSingle: this.course.allowSingle,
+        })
     }
 
     AllowCourseUpdate(e: InputEvent) {
+        this.course.allowCourse = e.value == 'true'
         this.setState({
-            allowCourse: e.value == 'true',
-        });
+            allowCourse: this.course.allowCourse,
+        })
+    }
+
+    PriceSingleUpdate(e: InputEvent) {
+        this.course.priceSingle = parseInt(e.value)
+        this.setState({
+            priceSingleValid: e.valid
+        })
+    }
+
+    PriceCourseUpdate(e: InputEvent) {
+        this.course.priceCourse = parseInt(e.value)
+        this.setState({
+            priceCourseValid: e.valid
+        })
+    }
+
+    PaymentSingleUpdate(e: InputEvent) {
+        this.course.paymentSingle = e.value
+        this.setState({
+            paymentSingleValid: e.valid
+        })
+    }
+
+    PaymentCourseUpdate(e: InputEvent) {
+        this.course.paymentCourse = e.value
+        this.setState({
+            paymentCourseValid: e.valid
+        })
+    }
+
+    CourseLengthUpdate(e: InputEvent) {
+        this.course.courseLength = parseInt(e.value)
+        this.setState({
+            courseLengthValid: e.valid
+        })
+    }
+
+    DescriptionUpdate(e: InputEvent) {
+        this.course.description = e.value
+        this.setState({
+            descriptionValid: e.valid
+        })
+    }
+
+    Submit() {
+        alert("send object of class CourseForm named course from where this allert is called")
+    }
+
+    IsCourseValid(): boolean{
+        var EssentialInfo: boolean = this.state.nameValid && this.state.typeValid && this.state.numberOfStudentsValid
+        var SingleLesson: boolean = (this.state.priceSingleValid && this.state.paymentSingleValid) || (!this.state.allowSingle && this.state.allowCourse)
+        var CourseLessons: boolean = (this.state.priceCourseValid && this.state.paymentCourseValid) || (!this.state.allowCourse && this.state.allowSingle)
+        var Other: boolean = this.state.descriptionValid
+        return EssentialInfo && SingleLesson && CourseLessons && Other
     }
 
     render() {
-        return <div>{this.RenderDemo()}
+        return <div>
             <h1>Form; Version 1</h1>
-            <div className="form-row row">
-                <TextInput
-                    prepend="Email:"
-                    placeholder="  Demo"
-                    validation={true}
-                    lengthValidation={true}
-                    initialValidity={false}
-                    emailValidation={true}
-                    min={5}
-                    max={62}
-                    width={InputWidth.half}
-                />
-                <TextInput
-                    prepend="Password:"
-                    placeholder="  Demo"
-                    validation={true}
-                    lengthValidation={true}
-                    initialValidity={false}
-                    password={true}
-                    oneWordValidation={true}
-                    min={5}
-                    max={62}
-                    width={InputWidth.half}
-                />
-            </div>
-            <div className="form-row row">
-                <TextInput
-                    prepend="Textaarea:"
-                    placeholder="  Demo"
-                    validation={true}
-                    lengthValidation={true}
-                    initialValidity={false}
-                    textArea={true}
-                    min={5}
-                    max={62}
-                    width={InputWidth.half}
-                />
-                <TextInput
-                    prepend="Second One:"
-                    placeholder="  Demo"
-                    validation={true}
-                    lengthValidation={true}
-                    initialValidity={false}
-                    textArea={true}
-                    min={5}
-                    max={62}
-                    width={InputWidth.half}
-                    disabled={true}
-                />
-            </div>
             <div className="form-row row">
                 <TextInput
                     prepend="Name:"
                     validation={true}
                     lengthValidation={true}
-                    initialValidity={false}
-                    min={5}
-                    max={62}
+                    initialValidity={this.state.nameValid}
+                    min={NAME_LENGTH_MIN}
+                    max={NAME_LENGTH_MAX}
                     width={InputWidth.half}
+                    onChange={(e) => this.NameUpdate(e)}
+                    onFocus={(e) => this.NameUpdate(e)}
                 />
                 <SelectInput
                     prepend="Type:"
-                    initialValidity={false}
+                    initialValidity={this.state.typeValid}
                     values={[
                         new SelectValue("Single Lecture", "lecture"),
                         new SelectValue("Course", "course"),
@@ -134,24 +206,30 @@ export class CourseEditor extends React.Component<RouteComponentProps<{}>, Cours
                         new SelectValue("Semenar", "semenar"),
                     ]}
                     width={InputWidth.half}
+                    onChange={(e) => this.TypeUpdate(e)}
+                    onFocus={(e) => this.TypeUpdate(e)}
                 />
             </div>
             <NumberRangeInput
                 description="Number of students on a given evnt"
-                upper={{
-                    prepend: "Maximum:",
-                    initialValue: 1,
-                }}
                 lower={{
                     prepend: "Minimum:",
-                    initialValue: 1,
+                    initialValue: this.course.numberOfStudentsMin,
+                    onChange: (e) => this.NumberOfStudentsMaxUpdate(e),
+                    onFocus: (e) => this.NumberOfStudentsMaxUpdate(e),
                 }}
-                initialValidity={true}
+                upper={{
+                    prepend: "Maximum:",
+                    initialValue: this.course.numberOfStudentsMax,
+                    onChange: (e) => this.NumberOfStudentsMinUpdate(e),
+                    onFocus: (e) => this.NumberOfStudentsMinUpdate(e),
+                }}
+                initialValidity={this.state.numberOfStudentsValid}
+                validation={true}
+                rangeValidation={true}
                 min={NUMBER_OF_STUDENTS_MIN}
                 max={NUMBER_OF_STUDENTS_MAX}
                 integer={true}
-                validation={true}
-                rangeValidation={true}
             />
             <div className="form-row row">
                 <CheckboxInput
@@ -168,23 +246,27 @@ export class CourseEditor extends React.Component<RouteComponentProps<{}>, Cours
                     validation={true}
                     rangeValidation={true}
                     validationIndicator={false}
-                    initialValidity={false}
-                    min={0}
-                    max={10000}
+                    initialValidity={this.state.priceSingleValid}
+                    min={COST_MIN}
+                    max={COST_MAX}
                     width={InputWidth.half}
                     disabled={!this.state.allowSingle}
+                    onChange={(e) => this.PriceSingleUpdate(e)}
+                    onFocus={(e) => this.PriceSingleUpdate(e)}
                 />
                 <SelectInput
                     prepend="Single payment:"
-                    initialValidity={false}
+                    initialValidity={this.state.paymentSingleValid}
                     values={[
                         new SelectValue("Before the lesson", "pre"),
                         new SelectValue("After the lesson", "post"),
                         new SelectValue("Any", "pre-post"),
-                        new SelectValue("Transaction before the lesson", "early")
+                        new SelectValue("In advance", "early")
                     ]}
                     width={InputWidth.half}
                     disabled={!this.state.allowSingle}
+                    onChange={(e) => this.PaymentSingleUpdate(e)}
+                    onFocus={(e) => this.PaymentSingleUpdate(e)}
                 />
             </div>
             <div className="form-row row">
@@ -197,16 +279,18 @@ export class CourseEditor extends React.Component<RouteComponentProps<{}>, Cours
                 <NumberInput
                     prepend="Course Length:"
                     append="lessons"
-                    initialValue={6}
+                    initialValue={this.course.courseLength}
                     validation={true}
                     rangeValidation={true}
                     integer={true}
-                    min={2}
-                    max={127}
-                    initialValidity={true}
+                    min={NUMBER_OF_COURSE_LESSONS_MIN}
+                    max={NUMBER_OF_COURSE_LESSONS_MAX}
+                    initialValidity={this.state.courseLengthValid}
                     width={InputWidth.half}
                     validationIndicator={false}
                     disabled={!this.state.allowCourse}
+                    onChange={(e) => this.CourseLengthUpdate(e)}
+                    onFocus={(e) => this.CourseLengthUpdate(e)}
                 />
             </div>
             <div className="form-row row">
@@ -216,15 +300,17 @@ export class CourseEditor extends React.Component<RouteComponentProps<{}>, Cours
                     validation={true}
                     rangeValidation={true}
                     validationIndicator={false}
-                    initialValidity={false}
-                    min={0}
-                    max={10000}
+                    initialValidity={this.state.priceCourseValid}
+                    min={COST_MIN}
+                    max={COST_MAX}
                     width={InputWidth.half}
                     disabled={!this.state.allowCourse}
+                    onChange={(e) => this.PriceCourseUpdate(e)}
+                    onFocus={(e) => this.PriceCourseUpdate(e)}
                 />
                 <SelectInput
                     prepend="Course payment:"
-                    initialValidity={false}
+                    initialValidity={this.state.paymentCourseValid}
                     values={[
                         new SelectValue("Right before the first event", "first"),
                         new SelectValue("on every lesson independently", "split"),
@@ -232,184 +318,45 @@ export class CourseEditor extends React.Component<RouteComponentProps<{}>, Cours
                     ]}
                     width={InputWidth.half}
                     disabled={!this.state.allowCourse}
+                    onChange={(e) => this.PaymentCourseUpdate(e)}
+                    onFocus={(e) => this.PaymentCourseUpdate(e)}
                 />
+            </div>
+            <div className="form-row row">
+                <TextInput
+                    label="Description:"
+                    validation={true}
+                    lengthValidation={true}
+                    min={0}
+                    max={DESC_CHAR_MAX_COUNT}
+                    validationIndicator={false}
+                    textArea={true}
+                    textAreaRows={4}
+                    onBlur={(e) => this.DescriptionUpdate(e)}
+                    onFocus={(e) => this.DescriptionUpdate(e)}
+                    onValidityChange={(e) => this.DescriptionUpdate(e)}
+                    width={InputWidth.full}
+                />
+            </div>
+            <div className="row ">
+                <div className="form-group ">
+                    <button
+                        type="button"
+                        className="btn btn-primary btn-block"
+                        disabled={!this.IsCourseValid()}
+                        onClick={(e) => this.Submit()}
+                        > Submit </button>
+                </div>
             </div>
         </div>
     }
-
-    //   TEST/DEMO ****************************************
-
-    HandleChange(e: InputEvent) {
-        if (e.valid) {
-            console.log(e.value);
-        }
-    }
-
-    HandleValidityChange(e: InputEvent) {
-        if (e.valid) {
-            alert("third form is now valid")
-        } else {
-            alert("third form is now invalid")
-        }
-    }
-
-    HandleSelect(e: InputEvent) {
-        console.log("1) " + e.value + " 2) " + e.valid)
-    }
-
-    HandelOptions(e: InputEvent) {
-        alert("you selected \" " + e.value + " \"")
-    }
-
-    RenderDemo() { return null }
-    NotTheRenderDemo() {
-        return <div>
-            <div className="form-row row">
-                <TextInput
-                    label="Can check for 8-20 characters"
-                    prepend="You can write stuff here"
-                    placeholder="Or here!"
-                    validation={true}
-                    lengthValidation={true}
-                    min={8}
-                    max={20}
-                    width={InputWidth.half}
-                />
-                <TextInput
-                    label="Or just at most 12 characters"
-                    prepend="this one will write content in consol if valid"
-                    onChange={(e) => this.HandleChange(e)}
-                    validation={true}
-                    lengthValidation={true}
-                    max={12}
-                    width={InputWidth.half}
-                    onFocus={(e) => this.HandleSelect(e)}
-                />
-            </div>
-            <div className="form-row row">
-                <CheckboxInput
-                    label="label"
-                    text="text"
-                    initialValue={false}
-                    width={InputWidth.half}
-                    textAfterCheckbox={true}
-                />
-                <CheckboxInput
-                    label="label"
-                    text="text"
-                    initialValue={true}
-                    width={InputWidth.half}
-                    textAfterCheckbox={false}
-                    useCorrectValue={true}
-                    correctValue={false}
-                />
-            </div>
-            <div className="form-row row">
-                <TextInput
-                    label="Or just at least 14 characters"
-                    prepend="this one will tell if validity changes"
-                    onValidityChange={(e) => this.HandleValidityChange(e)}
-                    initialValue="given value"
-                    validation={true}
-                    lengthValidation={true}
-                    min={14}
-                    width={InputWidth.third}
-                />
-                <TextInput
-                    label="Prepend below is not mandatory!"
-                    append="if you don't validate or turned the indicator off, you can write here!"
-                    width={InputWidth.twoThirds}
-                />
-            </div >
-            <div className="form-row row">
-                <TextInput />
-            </div >
-            <div className="form-row row">
-                <NumberInput
-                    label="Can check for values between 10 and 3000"
-                    prepend="You can write stuff here"
-                    placeholder="Or here!"
-                    validation={true}
-                    rangeValidation={true}
-                    min={10}
-                    max={3000}
-                />
-            </div >
-            <div className="form-row row">
-                <SelectInput
-                    values={[new SelectValue("1", "1"), new SelectValue("2", "2")]}
-                    label="Selector 1"
-                    prepend="prepend"
-                    append="append"
-                    initialValueIndex={4}
-                    width={InputWidth.twoThirds}
-                />
-                <SelectInput
-                    values={[
-                        new SelectValue("first", "1"),
-                        new SelectValue("second", "2"),
-                        new SelectValue("third", "3"),
-                        new SelectValue("forth", "4"),
-                        new SelectValue("fifth", "5"),
-                    ]}
-                    label="Selector 2"
-                    initialValueIndex={4}
-                    width={InputWidth.third}
-                    onChange={(e) => this.HandelOptions(e)}
-                />
-            </div >
-            <h1>Layout Tester</h1>
-            <div className="form-row row">
-                <h5>6/6</h5>
-                <TextInput width={6} />
-                <TextInput width={6} />
-            </div>
-            <div className="form-row row">
-                <h5>5/7</h5>
-                <TextInput width={5} />
-                <TextInput width={7} />
-            </div>
-            <div className="form-row row">
-                <h5>4/8, 4/4/4</h5>
-                <TextInput width={4} />
-                <TextInput width={8} />
-            </div>
-            <div className="form-row row">
-                <TextInput width={4} />
-                <TextInput width={4} />
-                <TextInput width={4} />
-            </div>
-            <div className="form-row row">
-                <h5>3/9, 3/3/6, 3/3/3/3</h5>
-                <TextInput width={3} />
-                <TextInput width={9} />
-            </div>
-            <div className="form-row row">
-                <TextInput width={3} />
-                <TextInput width={3} />
-                <TextInput width={6} />
-            </div>
-            <div className="form-row row">
-                <TextInput width={3} />
-                <TextInput width={3} />
-                <TextInput width={3} />
-                <TextInput width={3} />
-            </div>
-            <div className="form-row row">
-                <TextInput width={2} />
-                <TextInput width={10} />
-            </div>
-        </div>
-    }
-
-    //   TEST/DEMO Ends ****************************************
 }
 
 /*
 
 export class Course {
     id: string;                                 ----
-    logo: string;//link                         ----
+    logo: string;//link                         format?
     teacherId: string;                          ----
     name: string;                               done
     type: undefined; //enum                     done
