@@ -26,19 +26,19 @@ interface CourseEditorState {
 }
 
 class CourseForm {
-    private teacherId: string; 
-    public name: string; 
-    public type: string; 
-    public paymentSingle: string;
-    public paymentCourse: string;
-    public allowSingle: boolean;
-    public allowCourse: boolean;
-    public numberOfStudentsMin : number; 
-    public numberOfStudentsMax : number; 
-    public priceSingle: number;
-    public priceCourse: number; 
-    public courseLength: number;
-    public description: string; 
+    private teacherId: string;
+    public name: string | undefined; 
+    public type: string | undefined; 
+    public paymentSingle: string | undefined;
+    public paymentCourse: string | undefined;
+    public allowSingle: boolean | undefined;
+    public allowCourse: boolean | undefined;
+    public numberOfStudentsMin: number | undefined; 
+    public numberOfStudentsMax: number | undefined; 
+    public priceSingle: number | undefined;
+    public priceCourse: number | undefined; 
+    public courseLength: number | undefined;
+    public description: string | undefined; 
 
     constructor(
         teacherId: string,

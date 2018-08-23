@@ -3,18 +3,18 @@ import { RouteComponentProps } from 'react-router';
 import BigCalendar from 'react-big-calendar';
 import * as moment from 'moment';
 import "react-big-calendar/lib/css/react-big-calendar.css";
-import { EventStates, ComplexEvent } from "./DataController";
+import { EventStates, ComplexEventLegacy } from "./DataController";
 
 
 // TEMPORAL
 //Initial events, Fetcher should be written in the constructor  (will be removed)
 const eventsFromSomewhere = [
-    new ComplexEvent(false, new Date('2018-05-23 11:13:00'), new Date('2018-05-23 10:13:00'), "Simple Event", EventStates.other, "sowething 1"),
-    new ComplexEvent(true, new Date('2018-05-25 11:13:00'), new Date('2018-05-25 11:13:00'), "All Day Event", EventStates.other, "sowething 2")
+    new ComplexEventLegacy(false, new Date('2018-05-23 11:13:00'), new Date('2018-05-23 10:13:00'), "Simple Event", EventStates.other, "sowething 1"),
+    new ComplexEventLegacy(true, new Date('2018-05-25 11:13:00'), new Date('2018-05-25 11:13:00'), "All Day Event", EventStates.other, "sowething 2")
 ];
 
 //event instance (will be removed)
-const additionalEvent = new ComplexEvent(false, new Date('2018-05-24 11:13:30'), new Date('2018-05-24 11:13:00'), 'Added Event', EventStates.other, "sowething 3");
+const additionalEvent = new ComplexEventLegacy(false, new Date('2018-05-24 11:13:30'), new Date('2018-05-24 11:13:00'), 'Added Event', EventStates.other, "sowething 3");
 
 
 interface SelectionRange {
@@ -26,7 +26,7 @@ interface SelectionRange {
 
 //this is what is how we declare state varibles (dynamic attributes)
 interface CalendarState {
-    events: ComplexEvent[]
+    events: ComplexEventLegacy[]
 }
 
 //***** ***** ***** USING THIS IS RIGHT BUT REQUIRES CHANGES IN HOME.TSX ***** ***** *****
@@ -49,7 +49,7 @@ export class Calendar extends React.Component<RouteComponentProps<{}>, CalendarS
 
     //**** Proof of Concept ****
     //Simple example of adding an event 
-    AddEvent(event: ComplexEvent) {
+    AddEvent(event: ComplexEventLegacy) {
         this.state.events.push(event);
         this.forceUpdate();
     }
@@ -88,7 +88,7 @@ export class Calendar extends React.Component<RouteComponentProps<{}>, CalendarS
             selection.start.getFullYear() == selection.end.getFullYear() &&
             selection.slots.length >= properties.minEventDuration &&
             selection.slots.length <= properties.maxEventDuration) {
-            this.AddEvent(new ComplexEvent(false, selection.start, selection.end, "Drawn Event", EventStates.other, ""));
+            this.AddEvent(new ComplexEventLegacy(false, selection.start, selection.end, "Drawn Event", EventStates.other, ""));
         }
     }
 

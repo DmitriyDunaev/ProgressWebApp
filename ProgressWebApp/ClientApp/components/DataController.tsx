@@ -31,7 +31,7 @@ export class BasicEvent {
     end: Date;
     title: string;
 
-    constructor(allDay: boolean, start: Date, end: Date, title: string, ) {
+    constructor(allDay: boolean, start: Date, end: Date, title: string) {
         this.allDay = allDay;
         this.start = start;
         this.end = end;
@@ -39,10 +39,31 @@ export class BasicEvent {
     }
 }
 
+export class Event extends BasicEvent {
+    readonly teacherId: string;
+    readonly id: string;
+    possibleCourseIds: string[];
+    selectedCourse: string | undefined;
+    registeredStudents: string[];
+
+    private GenerateUinqueId(): string{
+        return (Date.now().toString(36) + Math.random().toString(36).substr(2)).substr(1,15)
+    }
+    
+    constructor(teacherId: string, start: Date, end: Date, title: string) {
+        super(false, start, end, title);
+        this.id = this.GenerateUinqueId()
+        this.teacherId = teacherId;
+        this.possibleCourseIds = [];
+        this.selectedCourse = undefined;
+        this.registeredStudents = [];
+    }
+}
+
 
 //Basic Event + additional data sucha as price and room (data not used by the Calendar)
 //would be better to mpve to a separate file
-export class ComplexEvent extends BasicEvent {
+export class ComplexEventLegacy extends BasicEvent {
     state: EventStates;
     message: string;
 
@@ -55,12 +76,6 @@ export class ComplexEvent extends BasicEvent {
     getBaisicEvent(): BasicEvent {
         return new BasicEvent(this.allDay, this.start, this.end, this.title);
     }
-}
-
-export class Event extends BasicEvent {   
-    teacherId: string;
-    courseId: string | undefined;
-    registrationInfo: { studentId: string; status: string; cancellable: boolean }[];
 }
 // export { SpecificClass } from './SpecificClassesFile'; //if you want to split the script into tiny bits but import from this file.
 
